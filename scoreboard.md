@@ -41,12 +41,43 @@ chain *without* mother-liquor recycling scores about 0.45 on seeds 0–19, well 
 
 | Seed | Model | Reward | Purity | Recovery | Carrier | Atomic weight (true) | Actions | Reference |
 |---|---|---|---|---|---|---|---|---|
-| 101 | Claude Haiku | *pending* | | | | | | 0.790 |
-| 102 | Claude Haiku | *pending* | | | | | | 0.939 |
+| 101 | Claude Haiku | **0.258** | 0.607 | 0.100 | Qu ✓ | 222.5 (221.36) | 51 | 0.790 |
+| 102 | Claude Haiku | **0.346** | 0.612 | 0.134 | Qe ✓ | 235.0 (229.99) | 63 | 0.939 |
 | 103 | Claude Haiku | *pending* | | | | | | 0.862 |
 | 101 | Claude Opus | *pending* | | | | | | 0.790 |
 | 102 | Claude Opus | *pending* | | | | | | 0.939 |
 | 103 | Claude Opus | *pending* | | | | | | 0.862 |
+
+**Failure analysis (v1)**
+
+Each loss below is traced to one decision in the task. In every case the information the agent
+needed was available through the tools.
+
+| Decision | What the task requires | Haiku 101 | Haiku 102 |
+|---|---|---|---|
+| Deal with the interferer | Wait several half-lives (the range is public) before following activity | ✓ waited 150 h | ✓ waited 240 h |
+| Follow the signal through precipitations | Keep the product holding the target's activity; subtract background and the known radioactive element | ✓ | ✓ |
+| Identify the carrier | The known element whose partition matches the target on every reagent | ✓ Qu | ✓ Qe |
+| Correct the atomic weight | Remove the contaminants' contribution, using the spectrum-derived fractions | ✓ within 1% | ✓ 2.2% off (98% credit) |
+| **Recover target from mother liquors** | Re-crystallise mother liquors and merge them back; otherwise each round throws away 20–50% of the target | ✗ never recycled | ✗ never recycled |
+| **When to stop** | Stop when purity ≈ goal and recovery ≈ goal, using the remaining budget | ✗ stopped with 49 actions unused | ✗ stopped with 37 actions unused |
+
+Run notes:
+- **Haiku 101 (0.258).** Purity 0.607 is close to the reference's 0.630. Recovery is 0.100
+  against the reference's 0.322. Every mother liquor was discarded. The model's own report names
+  the cause but takes no action: "recovery is low (~0.10 against a 0.3 threshold), because each
+  crystallisation step discarded ~30-50% of the target into mother liquor". It submitted with
+  49 actions left, which was enough to recycle.
+- **Haiku 102 (0.346).** Six crystallisations at fractions 0.5–0.6, all with the mother liquor
+  discarded. Recovery was 0.134 and purity 0.612. It stopped by reasoning that "a further
+  crystallisation step was not worth it, since recovery would fall faster than purity rises".
+  That is correct only *if* mother liquors are discarded, and recycling is how to escape this
+  trade-off. Its own reward estimate (~0.36) was close to the true 0.346, so it read the scoring
+  rules correctly. The loss comes from strategy, not from misreading the task.
+
+The common pattern: the model treats crystallisation as a one-way chain, keeps the crystals and
+throws everything else away. It never uses `combine` to bring material back. In v0b this cost
+little because `recovery_goal` was 0.15. In v1 it is the dominant source of the gap.
 
 ---
 
