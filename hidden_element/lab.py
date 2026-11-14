@@ -91,7 +91,7 @@ class Lab:
                     out["episode_over"] = "action budget exhausted without submission; score 0"
         except LabError as e:
             out = {"error": str(e)}
-        except TypeError as e:
+        except (TypeError, ValueError, OverflowError) as e:
             out = {"error": f"bad arguments: {e}"}
         entry["result"] = out
         self.log.append(entry)
@@ -253,6 +253,8 @@ class Lab:
     # ------------------------------------------------------------ submission
     def op_submit(self, sample_id: str, atomic_weight: float, carrier: str) -> dict:
         self._get(sample_id)
+        if not math.isfinite(float(atomic_weight)):
+            raise LabError("atomic_weight must be a finite number")
         self._finish({"sample_id": sample_id, "atomic_weight": float(atomic_weight), "carrier": str(carrier)})
         return {"submitted": sample_id, "message": "episode over; score computed by the server"}
 

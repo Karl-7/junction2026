@@ -1,6 +1,8 @@
 """Server-side reward. Inputs are the hidden world and the submitted sample's true masses."""
 from __future__ import annotations
 
+import math
+
 from .config import Config
 from .world import TARGET, World
 
@@ -10,6 +12,8 @@ def _clip01(x: float) -> float:
 
 
 def weight_credit(cfg: Config, reported: float, true: float) -> float:
+    if not math.isfinite(reported):
+        return 0.0
     err = abs(reported - true) / true
     if err <= cfg.weight_tol_full:
         return 1.0
