@@ -78,8 +78,16 @@ def _post(model: str, key: str, body: dict, log) -> dict:
             with urllib.request.urlopen(req, timeout=300) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
-            msg = e.read().decode(errors="replace")[:300]
-            log({"event": "http_error", "code": e.code, "attempt": attempt, "message": msg})
+            msg = e.read().decode(errors="replace")
+            quota = []
+            try:
+                for det in json.loads(msg)["error"].get("details", []):
+                    quota += [v.get("quotaId") for v in det.get("violations", [])]
+            except (ValueError, KeyError, TypeError):
+                pass
+            log({"event": "http_error", "code": e.code, "attempt": attempt, "quota": quota, "message": msg})
+            if any("PerDay" in (q or "") for q in quota):
+                raise RuntimeError(f"Gemini daily quota exhausted: {quota}")   # retrying cannot help
             if e.code in (429, 500, 503):
                 time.sleep(delay)
                 delay = min(delay * 1.7, 120)
