@@ -99,7 +99,7 @@ def _post(model: str, key: str, body: dict, log) -> dict:
     raise RuntimeError("Gemini API kept failing")
 
 
-def run(url: str, model: str, out: Path, max_requests: int = 150, config: str = "default-v0") -> dict:
+def run(url: str, model: str, out: Path, max_requests: int = 150, config: str = "default-v1") -> dict:
     out.parent.mkdir(parents=True, exist_ok=True)
     fh = out.open("w")
 

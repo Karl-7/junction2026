@@ -2,7 +2,7 @@
 
 Env:
   LAB_SEED       episode seed (never sent to the agent)
-  LAB_CONFIG     config name (default "default-v0")
+  LAB_CONFIG     config name (default "default-v1")
   GRADER_TOKEN   shared secret for /_grade (known to the verifier only)
   LAB_LOG_DIR    where the full trajectory (with hidden truth) is written after every call
 """
@@ -22,7 +22,7 @@ from .config import get_config
 from .lab import Lab
 from .rules import rules_text
 
-CFG = get_config(os.environ.get("LAB_CONFIG", "default-v0"))
+CFG = get_config(os.environ.get("LAB_CONFIG", "default-v1"))
 SEED = int(os.environ.get("LAB_SEED", "0"))
 TOKEN = os.environ.get("GRADER_TOKEN", "")
 LOG_DIR = Path(os.environ.get("LAB_LOG_DIR", "/var/lab"))

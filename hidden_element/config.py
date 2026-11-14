@@ -9,7 +9,7 @@ from dataclasses import dataclass, asdict, replace
 
 @dataclass(frozen=True)
 class Config:
-    name: str = "default-v0"
+    name: str = "default-v1"
 
     # --- world ---------------------------------------------------------
     n_common: int = 6               # known (non-trace) elements in the ore
@@ -20,7 +20,7 @@ class Config:
     carrier_fraction: tuple = (0.005, 0.010)   # ore mass fraction of the target's carrier
     common_fraction: tuple = (0.05, 0.30)    # other commons (normalised later)
     n_minor_common: int = 2                  # other commons as rare as the carrier (assay can't single it out)
-    target_alpha: tuple = (6.0, 10.0)         # crystallisation enrichment of target vs carrier
+    target_alpha: tuple = (5.0, 8.0)         # crystallisation enrichment of target vs carrier
     precip_high: tuple = (0.92, 0.99)        # "precipitates" fraction range
     precip_low: tuple = (0.01, 0.06)         # "stays in solution" fraction range
     follow_jitter: float = 0.03              # how closely trace elements follow their carrier
@@ -57,7 +57,7 @@ class Config:
 
     # --- scoring -----------------------------------------------------------
     purity_goal: float = 0.90
-    recovery_goal: float = 0.15
+    recovery_goal: float = 0.30
     report_gate_purity: float = 0.50
     weight_tol_full: float = 0.02            # relative error for full credit
     weight_tol_zero: float = 0.10            # relative error for zero credit
@@ -74,7 +74,7 @@ class Config:
 DEFAULT = Config()
 
 
-def get_config(name: str = "default-v0", **overrides) -> Config:
+def get_config(name: str = "default-v1", **overrides) -> Config:
     if name != DEFAULT.name:
         raise KeyError(f"unknown config {name!r}")
     return replace(DEFAULT, **overrides) if overrides else DEFAULT

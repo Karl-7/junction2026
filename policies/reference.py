@@ -4,16 +4,19 @@ Fixed procedure:
   1. Read the rules. Wait out the short-lived interferer (its half-life range is public).
   2. Dissolve the ore. For every reagent: precipitate, measure both products (background
      subtracted, repeated if the two are close), follow the stronger one.
-  3. Fractional crystallisation, following the product with the higher *specific* activity
-     (net cpm divided by its known share of the mass, `fraction` vs 1-fraction), until the
+  3. Fractional crystallisation with mother-liquor recycling. Each round: crystallise the
+     head sample, follow the product with the higher *specific* activity (net cpm divided by
+     its known share of the mass); crystallise that round's mother liquor once more and merge
+     its crystals back into the head; the second mother liquor is discarded. Stop when the
      spectrum shows an unassigned line and the known lines account for <= 15% of the mass
-     (purity estimated from public line sensitivities).
+     (purity estimated from public line sensitivities), or the budget runs low.
   4. Report: carrier = dominant known element right after step 2; atomic weight = the measured apparent
      weight corrected for the known-element fractions read from the spectrum.
 """
 from __future__ import annotations
 
-CRYSTAL_FRACTION = 0.70
+CRYSTAL_FRACTION = 0.40
+RECYCLE_FRACTION = 0.40
 STOP_KNOWN_FRACTION = 0.15
 COUNT_MIN = 2.0
 
@@ -75,12 +78,18 @@ def run(env) -> dict:
     fr0 = _known_fractions(env.call("spectrum", sample_id=cur), known)
     carrier = max(fr0, key=fr0.get) if fr0 else ""
     best_aw, best_fr = None, None
-    for _ in range(20):
+    for _ in range(30):
+        if env.call("list_samples")["actions_left"] < 10:
+            break
         r = env.call("crystallize", sample_id=cur, fraction=CRYSTAL_FRACTION)
         keep, _ = _follow_specific(env, r["crystals"], r["mother_liquor"], CRYSTAL_FRACTION, bg)
-        cur = keep
         if keep == r["crystals"]:
-            env.call("dissolve", sample_id=cur)
+            env.call("dissolve", sample_id=keep)
+            # Recycle: recover target left in the mother liquor.
+            r2 = env.call("crystallize", sample_id=r["mother_liquor"], fraction=RECYCLE_FRACTION)
+            env.call("dissolve", sample_id=r2["crystals"])
+            keep = env.call("combine", sample_ids=[keep, r2["crystals"]])["sample_id"]
+        cur = keep
         spec = env.call("spectrum", sample_id=cur)
         fr = _known_fractions(spec, known)
         if _unassigned(spec, known):
@@ -89,8 +98,6 @@ def run(env) -> dict:
                 best_aw, best_fr = aw["apparent_atomic_weight"], fr
             if sum(fr.values()) <= STOP_KNOWN_FRACTION or "error" in aw:
                 break
-        if env.call("list_samples")["actions_left"] < 8:
-            break
 
     weights = {el["symbol"]: el["atomic_weight"] for el in known}
     if best_aw is None:

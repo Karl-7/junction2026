@@ -171,7 +171,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
     ap.add_argument("--out", default=str(ROOT / "tasks"))
-    ap.add_argument("--config", default="default-v0")
+    ap.add_argument("--config", default="default-v1")
     ap.add_argument("--oracle-policy", default="reference", choices=["reference", "one_step", "submit_ore"],
                     help="what solution/solve.sh runs (one_step = the early-stop baseline)")
     a = ap.parse_args()
