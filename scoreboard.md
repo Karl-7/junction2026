@@ -1,6 +1,9 @@
 # Scoreboard
 
 Every result we have produced, grouped by environment version. Newer versions are at the top.
+An animated replay of every run below, with the version settings, is in
+[`docs/replay/index.html`](docs/replay/index.html). Rebuild it with
+`python3 docs/replay/build_page.py docs/replay docs/replay/trajectories`.
 Reward is in [0, 1] and is computed server-side from the hidden state (see `hidden_element/scoring.py`).
 
 **How the agent runs were made.** Docker was not available in the development container, so the
