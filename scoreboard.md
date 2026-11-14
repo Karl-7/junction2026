@@ -47,7 +47,8 @@ chain *without* mother-liquor recycling scores about 0.45 on seeds 0–19, well 
 | | **Haiku mean** | **0.321** | | | | | | **0.864** |
 | 101 | Claude Opus | **0.745** | 0.633 | 0.282 | Qu ✓ | 222.5 (221.36) | 100 | 0.790 |
 | 102 | Claude Opus | **0.987** | 0.903 | 0.296 | Qe ✓ | 230.4 (229.99) | 100 | 0.939 |
-| 103 | Claude Opus | *pending* | | | | | | 0.862 |
+| 103 | Claude Opus | **1.000** | 0.918 | 0.320 | Qy ✓ | 254.2 (254.71) | 99 | 0.862 |
+| | **Opus mean** | **0.911** | | | | | | **0.864** |
 
 **Failure analysis (v1)**
 
@@ -104,14 +105,29 @@ Run notes:
   each round deserves. The reference measures each round only as much as its fixed procedure
   needs.
 
+- **Opus 103 (1.000, above the reference's 0.862).** Same approach as on seed 102. It estimated the
+  crystallisation odds ratio (about 7.7), simulated the process and re-planned each of about 9
+  stages from fresh activity readings, with mother-liquor recycling every stage (19 `crystallize`,
+  9 `combine`). It submitted at purity 0.918 and recovery 0.320 with 1 action left. Its weight
+  correction, (239.52 − 0.082 × 75.4) / 0.918 ≈ 254.2, was within 0.2% of the true 254.71.
+
 The common pattern: the model treats crystallisation as a one-way chain, keeps the crystals and
 throws everything else away. It never uses `combine` to bring material back. In v0b this cost
 little because `recovery_goal` was 0.15. In v1 it is the dominant source of Haiku's gap.
 
-The decision separates models: Opus found recycling on seed 102 and beat the reference, while
-Haiku missed it on all three seeds. So v1 is hard in a meaningful way, but on this seed it does
-not produce a gap for a frontier-class model. This is reported as measured, per the project rule
-of stating plainly when no gap exists.
+**v1 summary.** The recycling decision separates models. Haiku missed it on all three seeds
+(mean 0.321 against the reference's 0.864). Opus found it on all three. Opus's mean is 0.911,
+*above* the reference's 0.864. It lost only on seed 101, where measurements used up the action
+budget (0.745 against 0.790), and beat the reference on seeds 102 and 103 by adapting its
+crystallisation fractions to a measured odds ratio. So v1 gives a large, explainable gap for a
+small model, **but no gap for a frontier-class model**. This is reported as measured, per the
+project rule of stating plainly when no gap exists.
+
+Next levers, both legitimate (no hidden information):
+1. A stronger reference: measure the crystallisation odds ratio first, then choose fractions from
+   it, which is what made Opus win.
+2. A tighter action budget: Opus used 99–100 of 100 actions on every seed, and its only loss came
+   from budget pressure.
 
 ---
 
