@@ -163,11 +163,14 @@ def generate(seed: int, cfg: Config) -> World:
     # Ore assay.
     trace = cfg.target_mass_g + cfg.interferer_mass_g
     common_total = cfg.ore_mass_g - trace
-    car_g = rng.uniform(*cfg.carrier_fraction) * cfg.ore_mass_g
-    raw = {s: rng.uniform(*cfg.common_fraction) for s in symbols if s != carrier}
-    scale = (common_total - car_g) / sum(raw.values())
-    ore = {s: raw[s] * scale for s in raw}
-    ore[carrier] = car_g
+    # The carrier and `n_minor_common` other elements share the same (rare) abundance range,
+    # so the public assay does not identify the carrier.
+    others = [s for s in symbols if s != carrier]
+    minors = rng.sample(others, min(cfg.n_minor_common, len(others) - 1))
+    ore = {s: rng.uniform(*cfg.carrier_fraction) * cfg.ore_mass_g for s in [carrier] + minors}
+    raw = {s: rng.uniform(*cfg.common_fraction) for s in others if s not in minors}
+    scale = (common_total - sum(ore.values())) / sum(raw.values())
+    ore.update({s: raw[s] * scale for s in raw})
     ore[TARGET] = cfg.target_mass_g
     ore[INTERFERER] = cfg.interferer_mass_g
 

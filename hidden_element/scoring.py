@@ -32,7 +32,8 @@ def score_submission(cfg: Config, world: World, live: dict, target_total: float,
     w_credit = weight_credit(cfg, sub["atomic_weight"], world.elements[TARGET].atomic_weight)
     c_credit = 1.0 if sub["carrier"].strip() == world.carrier else 0.0
     gated = purity >= cfg.report_gate_purity
-    report = 0.5 * w_credit + 0.5 * c_credit if gated else 0.0
+    # Report credit scales with recovery, so a microscopic pure speck earns little.
+    report = (0.5 * w_credit + 0.5 * c_credit) * r_score if gated else 0.0
 
     reward = cfg.w_separation * separation + cfg.w_report * report
     return {
