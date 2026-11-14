@@ -19,6 +19,7 @@ class Config:
     interferer_mass_g: float = 0.004  # hidden short-lived trace element
     carrier_fraction: tuple = (0.005, 0.010)   # ore mass fraction of the target's carrier
     common_fraction: tuple = (0.05, 0.30)    # other commons (normalised later)
+    n_minor_common: int = 2                  # other commons as rare as the carrier (assay can't single it out)
     target_alpha: tuple = (6.0, 10.0)         # crystallisation enrichment of target vs carrier
     precip_high: tuple = (0.92, 0.99)        # "precipitates" fraction range
     precip_low: tuple = (0.01, 0.06)         # "stays in solution" fraction range

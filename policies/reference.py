@@ -13,7 +13,7 @@ Fixed procedure:
 """
 from __future__ import annotations
 
-CRYSTAL_FRACTION = 0.50
+CRYSTAL_FRACTION = 0.70
 STOP_KNOWN_FRACTION = 0.15
 COUNT_MIN = 2.0
 

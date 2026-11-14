@@ -72,7 +72,8 @@ Reward (computed by the server from the true contents of the submitted sample)
   purity   = target mass / sample mass
   recovery = target mass in sample / target mass in the ore
   separation = min(1, purity/{pg:g}) * min(1, recovery/{rg:g})
-  report   = 0.5 * weight_credit + 0.5 * carrier_credit, counted only if purity >= {gate:g}
+  report   = (0.5 * weight_credit + 0.5 * carrier_credit) * min(1, recovery/{rg:g}),
+             counted only if purity >= {gate:g}
              weight_credit = 1 within {wf:.0%} relative error, falling linearly to 0 at {wz:.0%}
              carrier_credit = 1 if the carrier symbol is right
   reward   = {ws:g} * separation + {wr:g} * report          (0 if nothing is submitted)
