@@ -45,7 +45,7 @@ chain *without* mother-liquor recycling scores about 0.45 on seeds 0–19, well 
 | 102 | Claude Haiku | **0.346** | 0.612 | 0.134 | Qe ✓ | 235.0 (229.99) | 63 | 0.939 |
 | 103 | Claude Haiku | **0.360** | 0.653 | 0.134 | Qy ✓ | 256.7 (254.71) | 65 | 0.862 |
 | | **Haiku mean** | **0.321** | | | | | | **0.864** |
-| 101 | Claude Opus | *pending* | | | | | | 0.790 |
+| 101 | Claude Opus | **0.745** | 0.633 | 0.282 | Qu ✓ | 222.5 (221.36) | 100 | 0.790 |
 | 102 | Claude Opus | **0.987** | 0.903 | 0.296 | Qe ✓ | 230.4 (229.99) | 100 | 0.939 |
 | 103 | Claude Opus | *pending* | | | | | | 0.862 |
 
@@ -93,6 +93,16 @@ Run notes:
   last of its 100 actions. Result: purity 0.903, recovery 0.296. It beat the reference because
   it measured the crystallisation advantage first and tuned its fractions to this seed, while the
   reference uses fixed 0.4/0.4 fractions.
+
+- **Opus 101 (0.745, below the reference's 0.790).** Opus recycled here too (7 `combine`), but the
+  action budget ran out first. Of its 100 actions, 56 went to instruments (22 `spectrum`,
+  19 `measure_activity`, 15 `weigh`) and only 15 to `crystallize`. It also spent 6 actions on
+  precipitations, one more than the reference, because it re-ran reagent A. Purity stopped at 0.633
+  with recovery 0.282. Its report names the cause: "I had too few actions to push purity above
+  about 0.65" and "I wasted 2 actions by twice taking a spectrum of a mother liquor instead of the
+  merged sample". The deciding choice here was the *measurement budget*: how many measurements
+  each round deserves. The reference measures each round only as much as its fixed procedure
+  needs.
 
 The common pattern: the model treats crystallisation as a one-way chain, keeps the crystals and
 throws everything else away. It never uses `combine` to bring material back. In v0b this cost
