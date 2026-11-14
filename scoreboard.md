@@ -43,7 +43,8 @@ chain *without* mother-liquor recycling scores about 0.45 on seeds 0–19, well 
 |---|---|---|---|---|---|---|---|---|
 | 101 | Claude Haiku | **0.258** | 0.607 | 0.100 | Qu ✓ | 222.5 (221.36) | 51 | 0.790 |
 | 102 | Claude Haiku | **0.346** | 0.612 | 0.134 | Qe ✓ | 235.0 (229.99) | 63 | 0.939 |
-| 103 | Claude Haiku | *pending* | | | | | | 0.862 |
+| 103 | Claude Haiku | **0.360** | 0.653 | 0.134 | Qy ✓ | 256.7 (254.71) | 65 | 0.862 |
+| | **Haiku mean** | **0.321** | | | | | | **0.864** |
 | 101 | Claude Opus | *pending* | | | | | | 0.790 |
 | 102 | Claude Opus | *pending* | | | | | | 0.939 |
 | 103 | Claude Opus | *pending* | | | | | | 0.862 |
@@ -53,14 +54,14 @@ chain *without* mother-liquor recycling scores about 0.45 on seeds 0–19, well 
 Each loss below is traced to one decision in the task. In every case the information the agent
 needed was available through the tools.
 
-| Decision | What the task requires | Haiku 101 | Haiku 102 |
-|---|---|---|---|
-| Deal with the interferer | Wait several half-lives (the range is public) before following activity | ✓ waited 150 h | ✓ waited 240 h |
-| Follow the signal through precipitations | Keep the product holding the target's activity; subtract background and the known radioactive element | ✓ | ✓ |
-| Identify the carrier | The known element whose partition matches the target on every reagent | ✓ Qu | ✓ Qe |
-| Correct the atomic weight | Remove the contaminants' contribution, using the spectrum-derived fractions | ✓ within 1% | ✓ 2.2% off (98% credit) |
-| **Recover target from mother liquors** | Re-crystallise mother liquors and merge them back; otherwise each round throws away 20–50% of the target | ✗ never recycled | ✗ never recycled |
-| **When to stop** | Stop when purity ≈ goal and recovery ≈ goal, using the remaining budget | ✗ stopped with 49 actions unused | ✗ stopped with 37 actions unused |
+| Decision | What the task requires | Haiku 101 | Haiku 102 | Haiku 103 |
+|---|---|---|---|---|
+| Deal with the interferer | Wait several half-lives (the range is public) before following activity | ✓ waited 150 h | ✓ waited 240 h | ✓ waited 200 h |
+| Follow the signal through precipitations | Keep the product holding the target's activity; subtract background and the known radioactive element | ✓ | ✓ | ✓ |
+| Identify the carrier | The known element whose partition matches the target on every reagent | ✓ Qu | ✓ Qe | ✓ Qy |
+| Correct the atomic weight | Remove the contaminants' contribution, using the spectrum-derived fractions | ✓ within 1% | ✓ 2.2% off (98% credit) | ✓ within 1% |
+| **Recover target from mother liquors** | Re-crystallise mother liquors and merge them back; otherwise each round throws away 20–50% of the target | ✗ never recycled | ✗ never recycled | ✗ re-crystallised a mother liquor but never merged it (0 `combine` calls) |
+| **When to stop** | Stop when purity ≈ goal and recovery ≈ goal, using the remaining budget | ✗ stopped with 49 actions unused | ✗ stopped with 37 actions unused | ✗ stopped with 35 actions unused |
 
 Run notes:
 - **Haiku 101 (0.258).** Purity 0.607 is close to the reference's 0.630. Recovery is 0.100
@@ -74,6 +75,14 @@ Run notes:
   That is correct only *if* mother liquors are discarded, and recycling is how to escape this
   trade-off. Its own reward estimate (~0.36) was close to the true 0.346, so it read the scoring
   rules correctly. The loss comes from strategy, not from misreading the task.
+
+- **Haiku 103 (0.360).** It opened crystallisation with an extreme fraction of 0.05 (step 26),
+  leaving almost all the target in mother liquor S10. It then purified the crystal branch
+  (S13 → S15), *abandoned* it, and started a second chain from the old mother liquor S10
+  (S17 → S19 → S21 → S23). Its report describes this as "repeated crystallisation of mother
+  liquors", but the two branches were never combined, so the target ended up split across
+  branches and much of it was thrown away. Recovery was 0.134 and purity 0.653. It submitted
+  with 35 actions left.
 
 The common pattern: the model treats crystallisation as a one-way chain, keeps the crystals and
 throws everything else away. It never uses `combine` to bring material back. In v0b this cost
