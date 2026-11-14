@@ -46,7 +46,7 @@ chain *without* mother-liquor recycling scores about 0.45 on seeds 0–19, well 
 | 103 | Claude Haiku | **0.360** | 0.653 | 0.134 | Qy ✓ | 256.7 (254.71) | 65 | 0.862 |
 | | **Haiku mean** | **0.321** | | | | | | **0.864** |
 | 101 | Claude Opus | *pending* | | | | | | 0.790 |
-| 102 | Claude Opus | *pending* | | | | | | 0.939 |
+| 102 | Claude Opus | **0.987** | 0.903 | 0.296 | Qe ✓ | 230.4 (229.99) | 100 | 0.939 |
 | 103 | Claude Opus | *pending* | | | | | | 0.862 |
 
 **Failure analysis (v1)**
@@ -84,9 +84,24 @@ Run notes:
   branches and much of it was thrown away. Recovery was 0.134 and purity 0.653. It submitted
   with 35 actions left.
 
+- **Opus 102 (0.987, above the reference's 0.939).** Opus found the recycling decision on its
+  own. Before running the crystallisations it built a small model in a calculator script and
+  concluded that "a plain chain of crystallizations topped out around a 0.72 score.
+  Recrystallizing the mother liquors and adding those crystals back each step did much better".
+  It then ran 8 recycle rounds (27 `crystallize`, 9 `combine`), re-planned mid-way when two
+  atomic-weight readings showed its purity estimate was too high, and submitted with the very
+  last of its 100 actions. Result: purity 0.903, recovery 0.296. It beat the reference because
+  it measured the crystallisation advantage first and tuned its fractions to this seed, while the
+  reference uses fixed 0.4/0.4 fractions.
+
 The common pattern: the model treats crystallisation as a one-way chain, keeps the crystals and
 throws everything else away. It never uses `combine` to bring material back. In v0b this cost
-little because `recovery_goal` was 0.15. In v1 it is the dominant source of the gap.
+little because `recovery_goal` was 0.15. In v1 it is the dominant source of Haiku's gap.
+
+The decision separates models: Opus found recycling on seed 102 and beat the reference, while
+Haiku missed it on all three seeds. So v1 is hard in a meaningful way, but on this seed it does
+not produce a gap for a frontier-class model. This is reported as measured, per the project rule
+of stating plainly when no gap exists.
 
 ---
 
