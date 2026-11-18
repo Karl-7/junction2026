@@ -55,7 +55,7 @@ def find_model(name: str, models: list[ModelSpec] | None = None) -> ModelSpec:
     for m in models:
         if name in (m.id, m.label):
             return m
-    for prefix, prov, fam in (("claude", "anthropic", "Claude"), ("gpt", "openai", "GPT"),
+    for prefix, prov, fam in (("claude", "anthropic", "Claude"), ("gpt", "openai", "GPT"), ("deepseek", "deepseek", "DeepSeek"),
                               ("o", "openai", "GPT"), ("gemini", "gemini", "Gemini")):
         if name.startswith(prefix):
             return ModelSpec(id=name, label=name, provider=prov, family=fam)

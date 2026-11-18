@@ -138,7 +138,8 @@ def test_site_data(tmp_path):
 def test_model_registry():
     ms = load_models()
     assert {m.family for m in ms} >= {"Claude", "GPT", "Gemini"}
-    assert all(m.family == "Gemini" for m in ms if m.enabled)
+    assert {m.family for m in ms if m.enabled} == {"Gemini", "DeepSeek"}
+    assert find_model("deepseek-reasoner").provider == "deepseek"
     assert find_model("claude-opus-5-5").provider == "anthropic"
     assert find_model("gpt-9-turbo").provider == "openai"
     assert find_model("gemini-9").family == "Gemini"
