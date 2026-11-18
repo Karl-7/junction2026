@@ -1,0 +1,12 @@
+{
+  "_comment": "Models to compare. Edit freely: `id` is the API model name, `extra` is merged into every request body. API keys come from .env (see .env.example).",
+  "models": [
+    {"id": "claude-opus-5-5",   "label": "Claude Opus 5.5",   "provider": "anthropic", "family": "Claude", "max_tokens": 4096},
+    {"id": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5", "provider": "anthropic", "family": "Claude", "max_tokens": 4096},
+    {"id": "claude-haiku-5-5",  "label": "Claude Haiku 5.5",  "provider": "anthropic", "family": "Claude", "max_tokens": 4096},
+    {"id": "gpt-5",             "label": "GPT-5",             "provider": "openai",    "family": "GPT"},
+    {"id": "gpt-5-mini",        "label": "GPT-5 mini",        "provider": "openai",    "family": "GPT"},
+    {"id": "gemini-3.5-flash",  "label": "Gemini 3.5 Flash",  "provider": "gemini",    "family": "Gemini"},
+    {"id": "gemini-3-pro",      "label": "Gemini 3 Pro",      "provider": "gemini",    "family": "Gemini"}
+  ]
+}

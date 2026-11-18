@@ -1,4 +1,4 @@
-"""Baselines required by the judging protocol. All use only the public tool interface."""
+"""Trivial baselines (do nothing, submit the ore, stop early, random). Used in the environment tests."""
 from __future__ import annotations
 
 import random
