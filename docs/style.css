@@ -3,7 +3,7 @@
   --surface-0: #f6f6f4; --surface-1: #fcfcfb; --surface-2: #efeeea;
   --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6e69;
   --border: #dddcd6; --grid: #e6e5e0; --accent: #2a78d6;
-  --fam-human: #2a78d6; --fam-baseline: #8a8984; --fam-claude: #eb6834; --fam-gpt: #1baf7a; --fam-gemini: #eda100;
+  --fam-human: #2a78d6; --fam-baseline: #8a8984; --fam-claude: #eb6834; --fam-gpt: #1baf7a; --fam-gemini: #eda100; --fam-deepseek: #6250d6;
   --good: #1a7f37; --bad: #c4321f; --partial: #9a6700;
   --seq-0: #eef4fc; --seq-1: #b7d1f2; --seq-2: #6fa4e6; --seq-3: #2a78d6; --seq-4: #134b91;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -15,7 +15,7 @@
     --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #252523;
     --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a9990;
     --border: #3a3a37; --grid: #2e2e2b; --accent: #3987e5;
-    --fam-human: #3987e5; --fam-baseline: #9a9990; --fam-claude: #d95926; --fam-gpt: #199e70; --fam-gemini: #c98500;
+    --fam-human: #3987e5; --fam-baseline: #9a9990; --fam-claude: #d95926; --fam-gpt: #199e70; --fam-gemini: #c98500; --fam-deepseek: #9085e9;
     --good: #4ac26b; --bad: #f0705e; --partial: #d4a72c;
     --seq-0: #1d2633; --seq-1: #1f3d66; --seq-2: #2a5f9e; --seq-3: #3987e5; --seq-4: #9cc3f3;
   }
@@ -25,7 +25,7 @@
   --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #252523;
   --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a9990;
   --border: #3a3a37; --grid: #2e2e2b; --accent: #3987e5;
-  --fam-human: #3987e5; --fam-baseline: #9a9990; --fam-claude: #d95926; --fam-gpt: #199e70; --fam-gemini: #c98500;
+  --fam-human: #3987e5; --fam-baseline: #9a9990; --fam-claude: #d95926; --fam-gpt: #199e70; --fam-gemini: #c98500; --fam-deepseek: #9085e9;
   --good: #4ac26b; --bad: #f0705e; --partial: #d4a72c;
   --seq-0: #1d2633; --seq-1: #1f3d66; --seq-2: #2a5f9e; --seq-3: #3987e5; --seq-4: #9cc3f3;
 }
@@ -60,7 +60,7 @@ tbody tr:hover { background: var(--surface-2); }
 .agent { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .fam-Human { --fam: var(--fam-human); } .fam-Baseline { --fam: var(--fam-baseline); } .fam-Claude { --fam: var(--fam-claude); }
-.fam-GPT { --fam: var(--fam-gpt); } .fam-Gemini { --fam: var(--fam-gemini); }
+.fam-GPT { --fam: var(--fam-gpt); } .fam-Gemini { --fam: var(--fam-gemini); } .fam-DeepSeek { --fam: var(--fam-deepseek); }
 .dot { background: var(--fam); }
 .bar { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; width: 100%; }
 .bar span.track { width: 70px; height: 8px; background: var(--grid); border-radius: 4px; overflow: hidden; flex: none; }

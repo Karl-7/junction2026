@@ -59,7 +59,7 @@ for two agents side by side.
 ## Quick start
 
 ```bash
-cp .env.example .env                       # put your GEMINI_API_KEY in .env
+cp .env.example .env                       # put GEMINI_API_KEY (and DEEPSEEK_API_KEY) in .env
 python -m llm_bench.gemini_models flash    # check the exact model ids your key can use
 python -m llm_bench.run --seeds 101        # every enabled model in llm_bench/models.json
 open docs/index.html
@@ -68,7 +68,8 @@ open docs/index.html
 Only Python 3.10+ is needed. API calls use the standard library, so there are no SDK dependencies (`pytest` is used for tests).
 
 **Models.** [`llm_bench/models.json`](llm_bench/models.json) enables five Gemini models: 2.5 Flash Lite, 2.5 Flash,
-3 Flash, 3.1 Flash Lite and 3.5 Flash Lite. Claude and GPT entries are there but disabled (`"enabled": false`).
+3 Flash, 3.1 Flash Lite and 3.5 Flash Lite, plus DeepSeek Chat and DeepSeek Reasoner (`DEEPSEEK_API_KEY`).
+Claude and GPT entries are there but disabled (`"enabled": false`).
 If an id is wrong for your key, replace it with one printed by `python -m llm_bench.gemini_models`.
 
 **Rate limits.** One episode takes roughly 60 model requests. Set each model's `rpm` and `rpd` (requests per minute
@@ -92,7 +93,7 @@ python -m pytest -q
 ```
 hidden_element/   the simulated lab: world generation, operations, rules text, scoring (hidden state stays here)
 policies/         Curie-style expert baseline (reference.py) and trivial baselines used in tests
-llm_bench/        providers (Gemini / Anthropic / OpenAI), agent loop, human play, grounded metrics, site data
+llm_bench/        providers (Gemini / DeepSeek / Anthropic / OpenAI), agent loop, human play, grounded metrics, site data
 results/runs/     one JSON per agent and seed: every step with tool, args, reason, prediction, result; outcome; hidden truth
 results/raw/      raw API transcripts (git-ignored)
 docs/             static site: index.html (comparison), runs.html (decisions & reasons, side by side)

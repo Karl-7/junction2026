@@ -14,7 +14,7 @@ from .config import ROOT, RUNS_DIR
 from .metrics import CONCEPTS, PHASES, STRATEGY, summarize
 
 DOCS = ROOT / "docs"
-FAMILY_ORDER = ["Baseline", "Human", "Claude", "GPT", "Gemini"]
+FAMILY_ORDER = ["Baseline", "Human", "Claude", "GPT", "Gemini", "DeepSeek"]
 GROUNDED_KEYS = ["grs", "decision_accuracy", "evidence_consistency", "claim_truth", "faithfulness",
                  "prediction_accuracy", "prediction_rate"]
 COUNT_KEYS = ["n_decisions", "n_measured_decisions", "n_claims", "n_faithfulness", "n_predictions"]

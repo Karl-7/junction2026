@@ -166,14 +166,17 @@ class OpenAIProvider:
     Set OPENAI_API_MODE=chat (or `"api": "chat"` in the model's extra) for Chat Completions,
     e.g. for OpenAI-compatible endpoints."""
 
+    KEY_ENV, BASE_ENV, MODE_ENV = "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_API_MODE"
+    DEFAULT_BASE, DEFAULT_MODE = "https://api.openai.com/v1", "responses"
+
     def __init__(self, spec: ModelSpec, log: Log):
         self.spec, self.log = spec, log
         extra = dict(spec.extra)
-        self.mode = extra.pop("api", os.environ.get("OPENAI_API_MODE", "responses"))
+        self.mode = extra.pop("api", os.environ.get(self.MODE_ENV, self.DEFAULT_MODE))
         self.extra = extra
-        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+        base = os.environ.get(self.BASE_ENV, self.DEFAULT_BASE).rstrip("/")
         self.url = base + ("/responses" if self.mode == "responses" else "/chat/completions")
-        self.headers = {"Authorization": f"Bearer {_key('OPENAI_API_KEY')}"}
+        self.headers = {"Authorization": f"Bearer {_key(self.KEY_ENV)}"}
         if self.mode == "responses":
             self.tools = [{"type": "function", "name": t["name"], "description": t["description"],
                            "parameters": t["parameters"]} for t in TOOLS]
@@ -214,14 +217,15 @@ class OpenAIProvider:
         body = {"model": self.spec.id, "messages": self.messages, "tools": self.tools, **self.extra}
         resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
         msg = (resp.get("choices") or [{}])[0].get("message") or {"role": "assistant", "content": ""}
-        self.messages.append({k: v for k, v in msg.items() if k in ("role", "content", "tool_calls")})
+        # reasoning_content (DeepSeek thinking mode) is passed back, as required for tool calls
+        self.messages.append({k: v for k, v in msg.items() if k in ("role", "content", "tool_calls", "reasoning_content")})
         calls = []
         for tc in msg.get("tool_calls") or []:
             args, err = _parse_args(tc["function"].get("arguments"))
             calls.append(ToolCall(tc["id"], tc["function"]["name"], args, err))
         u = resp.get("usage", {})
         usage = {"input_tokens": u.get("prompt_tokens", 0), "output_tokens": u.get("completion_tokens", 0)}
-        return Turn(calls, (msg.get("content") or "").strip(), "", usage, resp)
+        return Turn(calls, (msg.get("content") or "").strip(), (msg.get("reasoning_content") or "").strip(), usage, resp)
 
     def add_results(self, results):
         if self.mode == "responses":
@@ -291,7 +295,14 @@ class GeminiProvider:
         self.contents.append({"role": "user", "parts": [{"text": text}]})
 
 
-PROVIDERS = {"anthropic": AnthropicProvider, "openai": OpenAIProvider, "gemini": GeminiProvider}
+class DeepSeekProvider(OpenAIProvider):
+    """DeepSeek: OpenAI-compatible Chat Completions with its own key (DEEPSEEK_API_KEY)."""
+    KEY_ENV, BASE_ENV, MODE_ENV = "DEEPSEEK_API_KEY", "DEEPSEEK_BASE_URL", "DEEPSEEK_API_MODE"
+    DEFAULT_BASE, DEFAULT_MODE = "https://api.deepseek.com", "chat"
+
+
+PROVIDERS = {"anthropic": AnthropicProvider, "openai": OpenAIProvider, "gemini": GeminiProvider,
+             "deepseek": DeepSeekProvider}
 
 
 def make_provider(spec: ModelSpec, log: Log):

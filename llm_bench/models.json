@@ -5,6 +5,8 @@
     {"id": "gemini-2.5-flash",              "label": "Gemini 2.5 Flash",      "provider": "gemini", "family": "Gemini", "rpm": 5,  "rpd": 20},
     {"id": "gemini-3-flash-preview",        "label": "Gemini 3 Flash",        "provider": "gemini", "family": "Gemini", "rpm": 5,  "rpd": 20},
     {"id": "gemini-3.1-flash-lite",         "label": "Gemini 3.1 Flash Lite", "provider": "gemini", "family": "Gemini", "rpm": 15, "rpd": 500},
+    {"id": "deepseek-chat",     "label": "DeepSeek Chat",     "provider": "deepseek", "family": "DeepSeek", "note": "non-thinking mode"},
+    {"id": "deepseek-reasoner", "label": "DeepSeek Reasoner", "provider": "deepseek", "family": "DeepSeek", "max_tokens": 8192, "note": "thinking mode"},
     {"id": "gemini-3.5-flash-lite",         "label": "Gemini 3.5 Flash Lite", "provider": "gemini", "family": "Gemini", "rpm": 15, "rpd": 500},
 
     {"id": "claude-opus-5-5",   "label": "Claude Opus 5.5",   "provider": "anthropic", "family": "Claude", "max_tokens": 4096, "enabled": false},
