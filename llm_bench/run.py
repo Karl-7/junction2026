@@ -52,13 +52,22 @@ def main():
             print(f"{s.label}: limited to {s.rpm:g} requests/min, so one episode takes about "
                   f"{EST_REQUESTS / s.rpm:.0f} min.", flush=True)
 
+    fatal: dict = {}     # model id -> account-level error; its remaining episodes are skipped
+
     def one(job):
         s, seed = job
+        if s.id in fatal:
+            print(f"-- skip {s.label} seed {seed}: {fatal[s.id]}", flush=True)
+            return None
         print(f"== {s.label} seed {seed}", flush=True)
         rec = run_episode(s, seed, max_requests=a.max_requests, verbose=a.parallel == 1)
         r = rec["result"] or {}
         if rec["status"].startswith("error"):
             print(f"!! {s.label} seed {seed} FAILED: {rec['status']}", flush=True)
+            st = rec["status"]
+            if any(k in st for k in ("HTTP 401", "HTTP 402", "HTTP 403", "quota exhausted", "is not set")):
+                fatal[s.id] = "account / key problem, see the error above (fix it and re-run with --skip-existing)"
+            return rec
         print(f"== {s.label} seed {seed}: {rec['status']} reward={r.get('reward', 0):.3f} "
               f"actions={rec['actions']} tokens={rec['usage']}", flush=True)
         return rec
