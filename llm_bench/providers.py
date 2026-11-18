@@ -116,8 +116,23 @@ def _result_text(result: dict) -> str:
     return json.dumps(result, ensure_ascii=False)
 
 
+class _Base:
+    """Shared request path. `replay` holds recorded raw responses (from results/raw/...jsonl) that are
+    returned instead of calling the API, so an interrupted episode can be rebuilt exactly and resumed."""
+    replay: list
+
+    def _post(self, body: dict) -> dict:
+        if getattr(self, "replay", None):
+            return self.replay.pop(0)
+        return post_json(self.url, self.headers, body, self.log, label=self.spec.label)
+
+    @property
+    def replaying(self) -> bool:
+        return bool(getattr(self, "replay", None))
+
+
 # ============================================================================ Anthropic
-class AnthropicProvider:
+class AnthropicProvider(_Base):
     """Messages API. The latest message gets a cache breakpoint so the growing prefix is cached."""
 
     def __init__(self, spec: ModelSpec, log: Log):
@@ -140,7 +155,7 @@ class AnthropicProvider:
             last[-1]["cache_control"] = {"type": "ephemeral"}
         body = {"model": self.spec.id, "max_tokens": self.spec.max_tokens, "system": self.system,
                 "tools": self.tools, "messages": msgs, **self.spec.extra}
-        resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
+        resp = self._post(body)
         content = resp.get("content", [])
         self.messages.append({"role": "assistant", "content": content})
         calls = [ToolCall(b["id"], b["name"], b.get("input") or {}) for b in content if b.get("type") == "tool_use"]
@@ -161,7 +176,7 @@ class AnthropicProvider:
 
 
 # ============================================================================ OpenAI
-class OpenAIProvider:
+class OpenAIProvider(_Base):
     """Responses API by default (keeps reasoning state server-side via previous_response_id).
     Set OPENAI_API_MODE=chat (or `"api": "chat"` in the model's extra) for Chat Completions,
     e.g. for OpenAI-compatible endpoints."""
@@ -198,7 +213,7 @@ class OpenAIProvider:
                     "tools": self.tools, **self.extra}
             if self.prev_id:
                 body["previous_response_id"] = self.prev_id
-            resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
+            resp = self._post(body)
             self.prev_id = resp.get("id")
             self.pending = []
             calls, texts, thoughts = [], [], []
@@ -215,7 +230,7 @@ class OpenAIProvider:
             return Turn(calls, "\n".join(texts).strip(), "\n".join(thoughts).strip(), usage, resp)
 
         body = {"model": self.spec.id, "messages": self.messages, "tools": self.tools, **self.extra}
-        resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
+        resp = self._post(body)
         msg = (resp.get("choices") or [{}])[0].get("message") or {"role": "assistant", "content": ""}
         # reasoning_content (DeepSeek thinking mode) is passed back, as required for tool calls
         self.messages.append({k: v for k, v in msg.items() if k in ("role", "content", "tool_calls", "reasoning_content")})
@@ -242,7 +257,7 @@ class OpenAIProvider:
 
 
 # ============================================================================ Gemini
-class GeminiProvider:
+class GeminiProvider(_Base):
     """generateContent with function calling. Model turns are appended verbatim (thought signatures)."""
 
     def __init__(self, spec: ModelSpec, log: Log):
@@ -263,7 +278,7 @@ class GeminiProvider:
                 "tools": self.tools, "generationConfig": {"thinkingConfig": {"includeThoughts": True}}}
         for k, v in self.spec.extra.items():
             body[k] = {**body[k], **v} if isinstance(v, dict) and isinstance(body.get(k), dict) else v
-        resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
+        resp = self._post(body)
         cand = (resp.get("candidates") or [{}])[0]
         content = cand.get("content") or {"role": "model", "parts": []}
         content.setdefault("role", "model")

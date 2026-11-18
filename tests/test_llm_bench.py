@@ -143,3 +143,38 @@ def test_model_registry():
     assert find_model("claude-opus-5-5").provider == "anthropic"
     assert find_model("gpt-9-turbo").provider == "openai"
     assert find_model("gemini-9").family == "Gemini"
+
+
+def test_resume_after_quota_error_replays_then_continues(tmp_path, monkeypatch):
+    """Quota runs out mid-episode; a resumed run replays the recorded responses (no API calls)
+    and then continues live, ending exactly where an uninterrupted run would."""
+    from llm_bench import providers as P
+    monkeypatch.setenv("GEMINI_API_KEY", "x")
+    ref = protocol_run(101)
+    script = [{"candidates": [{"content": {"role": "model", "parts": [
+        {"functionCall": {"name": s["tool"], "args": {**s["args"], "reason": s["reason"]}}}]}}],
+        "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 2}} for s in ref["steps"]]
+    calls = {"n": 0}
+
+    def fake_post(url, headers, body, log, **k):
+        i = calls["n"]
+        if quota["left"] <= 0:
+            raise P.ProviderError("quota exhausted (HTTP 429): PerDay")
+        quota["left"] -= 1
+        calls["n"] += 1
+        # the conversation sent must contain every earlier model turn (rebuilt exactly on resume)
+        assert sum(1 for c in body["contents"] if c["role"] == "model") == i
+        return script[i]
+
+    monkeypatch.setattr(P, "post_json", fake_post)
+    spec = ModelSpec(id="gemini-x", label="GX", provider="gemini", family="Gemini")
+    kw = dict(runs_dir=tmp_path / "runs", raw_dir=tmp_path / "raw", verbose=False)
+    quota = {"left": 30}
+    first = agent.run_episode(spec, 101, **kw)
+    assert first["status"].startswith("error") and len(first["steps"]) == 30
+    quota["left"] = 10_000
+    second = agent.run_episode(spec, 101, resume=True, **kw)
+    assert second["status"] == "submitted"
+    assert calls["n"] == len(script)                      # the 30 recorded ones were not requested again
+    assert second["result"]["reward"] == ref["result"]["reward"]
+    assert [s["reason"] for s in second["steps"]] == [s["reason"] for s in ref["steps"]]

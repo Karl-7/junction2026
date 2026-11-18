@@ -76,12 +76,32 @@ def save_record(rec: dict, runs_dir: Path = RUNS_DIR) -> Path:
     return p
 
 
+def recorded_responses(raw_path: Path) -> list:
+    """Raw API responses of an earlier (interrupted) attempt, in order."""
+    if not raw_path.exists():
+        return []
+    out = []
+    for line in raw_path.read_text().splitlines():
+        try:
+            e = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if e.get("event") == "response" and e.get("raw"):
+            out.append(e["raw"])
+    return out
+
+
 def run_episode(spec: ModelSpec, seed: int, *, config: str = "default-v1", max_requests: int = 200,
-                runs_dir: Path = RUNS_DIR, raw_dir: Path = RAW_DIR, provider=None, verbose: bool = True) -> dict:
+                runs_dir: Path = RUNS_DIR, raw_dir: Path = RAW_DIR, provider=None, verbose: bool = True,
+                resume: bool = False) -> dict:
+    """Run one episode. With resume=True, the responses recorded in results/raw/<model>/seed<N>.jsonl are
+    replayed first (no API calls; the lab is deterministic, so the episode is rebuilt exactly), then the
+    episode continues live from where it stopped."""
     cfg = get_config(config)
     lab = Lab(seed, cfg)
     raw_path = raw_dir / spec.slug / f"seed{seed}.jsonl"
     raw_path.parent.mkdir(parents=True, exist_ok=True)
+    replay = recorded_responses(raw_path) if resume else []
     fh = raw_path.open("w")
 
     def log(rec):
@@ -94,9 +114,14 @@ def run_episode(spec: ModelSpec, seed: int, *, config: str = "default-v1", max_r
     try:
         p = provider or make_provider(spec, log)
         p.start(SYSTEM_PROMPT, task_prompt(cfg))
-        log({"event": "start", "model": spec.id, "seed": seed})
+        log({"event": "start", "model": spec.id, "seed": seed, "resumed_from": len(replay)})
+        if replay:
+            p.replay = replay
+            print(f"  [{spec.label} s{seed}] resuming: replaying {len(replay)} recorded responses", flush=True)
         for n in range(max_requests):
-            _throttle(spec)
+            replaying = getattr(p, "replaying", False)
+            if not replaying:
+                _throttle(spec)
             turn = p.step()
             usage["requests"] += 1
             for k in ("input_tokens", "output_tokens"):
@@ -132,7 +157,7 @@ def run_episode(spec: ModelSpec, seed: int, *, config: str = "default-v1", max_r
                     no_reason = True
                     missing += 1
                 results.append((c, res))
-                if verbose:
+                if verbose and not replaying:
                     print(f"  [{spec.label} s{seed}] {c.name}({', '.join(f'{k}={v}' for k, v in args.items())})"
                           f"  — {reason or '(no reason)'}", flush=True)
                 if lab.done:

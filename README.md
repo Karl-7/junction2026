@@ -74,7 +74,10 @@ If an id is wrong for your key, replace it with one printed by `python -m llm_be
 
 **Rate limits.** One episode takes roughly 60 model requests. Set each model's `rpm` and `rpd` (requests per minute
 and per day) to your API tier's limits. Requests are then spaced automatically, retries are printed, and the run
-warns up front when a daily limit is too low to finish an episode. On the free tier, models limited to 20 requests
+warns up front when a daily limit is too low to finish an episode. If an episode stops on an error (for example the daily quota),
+run the same command again with `--skip-existing` once the quota resets: finished episodes are skipped and the
+interrupted one resumes where it stopped. Its recorded responses are replayed without API calls, so nothing is
+paid for twice (`--fresh` restarts it instead). On the free tier, models limited to 20 requests
 per day cannot finish one episode.
 
 More commands:
