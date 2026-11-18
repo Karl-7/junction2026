@@ -5,12 +5,12 @@
 We give Claude, GPT and Gemini models the same lab puzzle: find and purify an unknown radioactive element
 hidden in an ore, the way Marie Curie did. The models work through tools (dissolve, precipitate,
 crystallise, measure, …). **Every time a model acts, it must say why in one sentence.** We then compare
-each model with a human doing the same puzzle:
+each model with Marie Curie's way of solving the same puzzle (the ground truth):
 
 * **How well did it do?** A reward from 0 to 1, computed from the sample it hands in.
 * **How human was its thinking?** Did it make the same key decisions, in the same order, for the same reasons?
 
-![Overview: Claude, GPT, Gemini and a human solve the same lab task; every action carries a one-sentence reason; results are scored for reward and human-likeness](docs/images/overview.svg)
+![Overview: Claude, GPT and Gemini solve the same lab task as Marie Curie (the ground truth); every action carries a one-sentence reason; results are scored for reward and similarity to Curie](docs/images/overview.svg)
 
 ## The puzzle
 
@@ -28,15 +28,15 @@ threw away the target element left behind in each mother liquor. The website sho
 (for example a model next to the human). `docs/index.html` compares all models: reward against
 human-likeness, the key decisions each one made, and which scientific ideas appear in its reasons.
 
-![The decisions-and-reasons page, showing the human expert's run step by step with the reason for each action](docs/images/reasons-viewer.png)
+![The decisions-and-reasons page, showing Marie Curie's (ground-truth) run step by step with the reason for each action](docs/images/reasons-viewer.png)
 
-*Screenshot: the human expert's run on seed 101. Model runs appear here once you run the models.*
+*Screenshot: the Marie Curie ground-truth run on seed 101. Model runs appear here once you run the models.*
 
 ## Quick start
 
 ```bash
 cp .env.example .env          # then fill in ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY
-python -m llm_bench.human protocol --seeds 101 102 103      # human expert reference (already committed)
+python -m llm_bench.human protocol --seeds 101 102 103      # Marie Curie ground truth (already committed)
 python -m llm_bench.run --seeds 101 102 103                  # every model in llm_bench/models.json
 open docs/index.html                                         # comparison; docs/runs.html = decisions & reasons
 ```
@@ -60,8 +60,8 @@ OpenAI-compatible endpoint (`OPENAI_BASE_URL`).
 
 ## Human references
 
-* **Human expert protocol** (`policies/reference.py`, agent id `human-expert-protocol`): a fixed procedure modelled
-  on the Curies' method. It waits out the short-lived interferer, follows the activity through every
+* **Marie Curie (ground truth)** (`policies/reference.py`, agent id `human-expert-protocol`): a fixed procedure modelled
+  on the Curies' method, used as the ground truth. It waits out the short-lived interferer, follows the activity through every
   precipitation, then runs fractional crystallisation with mother-liquor recycling. A human expert's one-sentence
   reason is attached to every step.
 * **Real people** can play in the terminal, and the run is saved as an additional human reference:
@@ -88,7 +88,7 @@ OpenAI-compatible endpoint (`OPENAI_BASE_URL`).
 
 ```
 hidden_element/   the simulated lab: world generation, operations, rules text, scoring (hidden state stays here)
-policies/         human expert protocol (reference.py) and trivial baselines used in tests
+policies/         Marie Curie ground-truth protocol (reference.py) and trivial baselines used in tests
 llm_bench/        providers (Anthropic / OpenAI / Gemini), agent loop, human play, metrics, site data
 results/runs/     one JSON per agent and seed: every step with tool, args, reason, result; outcome; hidden truth
 results/raw/      raw API transcripts (git-ignored)

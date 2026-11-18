@@ -3,14 +3,14 @@
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f6e69"/></marker>
   </defs>
   <rect width="960" height="360" rx="16" fill="#fcfcfb"/>
-  <text x="32" y="40" font-size="20" font-weight="700" fill="#0b0b0b">Same lab task, four kinds of agents, one sentence of reasoning per decision</text>
+  <text x="32" y="40" font-size="20" font-weight="700" fill="#0b0b0b">Same lab task, LLMs vs. Marie Curie, one sentence of reasoning per decision</text>
 
   <!-- agents -->
   <g font-size="15" font-weight="600">
     <rect x="32" y="70" width="170" height="48" rx="10" fill="#fdeee7" stroke="#eb6834"/><circle cx="54" cy="94" r="7" fill="#eb6834"/><text x="70" y="99" fill="#0b0b0b">Claude models</text>
     <rect x="32" y="130" width="170" height="48" rx="10" fill="#e6f6f0" stroke="#1baf7a"/><circle cx="54" cy="154" r="7" fill="#1baf7a"/><text x="70" y="159" fill="#0b0b0b">GPT models</text>
     <rect x="32" y="190" width="170" height="48" rx="10" fill="#fdf4dc" stroke="#eda100"/><circle cx="54" cy="214" r="7" fill="#eda100"/><text x="70" y="219" fill="#0b0b0b">Gemini models</text>
-    <rect x="32" y="250" width="170" height="48" rx="10" fill="#e8f0fb" stroke="#2a78d6"/><circle cx="54" cy="274" r="7" fill="#2a78d6"/><text x="70" y="279" fill="#0b0b0b">Human</text>
+    <rect x="32" y="250" width="170" height="48" rx="10" fill="#e8f0fb" stroke="#2a78d6"/><circle cx="54" cy="274" r="7" fill="#2a78d6"/><text x="70" y="271" fill="#0b0b0b">Marie Curie</text><text x="70" y="289" font-size="11" font-weight="400" fill="#52514e">ground truth</text>
   </g>
   <path d="M206 184 H262" stroke="#6f6e69" stroke-width="2" marker-end="url(#ar)"/>
 
@@ -35,9 +35,9 @@
   <text x="684" y="140" font-size="13" fill="#52514e">carrier element, scored from the</text>
   <text x="684" y="158" font-size="13" fill="#52514e">hidden truth</text>
   <rect x="664" y="186" width="264" height="112" rx="12" fill="#ffffff" stroke="#dddcd6"/>
-  <text x="684" y="214" font-size="16" font-weight="700" fill="#0b0b0b">Human-likeness (0–1)</text>
-  <text x="684" y="238" font-size="13" fill="#52514e">same key decisions? same order</text>
-  <text x="684" y="256" font-size="13" fill="#52514e">of work? same tools? same</text>
-  <text x="684" y="274" font-size="13" fill="#52514e">concepts in the reasons?</text>
+  <text x="684" y="214" font-size="16" font-weight="700" fill="#0b0b0b">Similarity to Curie (0–1)</text>
+  <text x="684" y="238" font-size="13" fill="#52514e">same key decisions as Curie?</text>
+  <text x="684" y="256" font-size="13" fill="#52514e">same order of work? same tools?</text>
+  <text x="684" y="274" font-size="13" fill="#52514e">same concepts in the reasons?</text>
   <text x="32" y="334" font-size="13" fill="#52514e">Results and every step's reason are shown on a static website (docs/index.html and docs/runs.html).</text>
 </svg>

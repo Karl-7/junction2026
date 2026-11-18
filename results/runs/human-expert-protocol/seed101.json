@@ -1,7 +1,7 @@
 {
  "agent": {
   "id": "human-expert-protocol",
-  "label": "Human expert protocol",
+  "label": "Marie Curie (ground truth)",
   "family": "Human",
   "provider": "script",
   "kind": "human"

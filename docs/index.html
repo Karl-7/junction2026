@@ -20,7 +20,7 @@
   <p class="lead">Claude, GPT and Gemini models each try to isolate an unknown radioactive element in a simulated
   lab, the way Marie Curie did: separate the ore, follow the radioactivity, purify by fractional crystallisation.
   Every tool call carries the model's own one-sentence <strong>key reason</strong>. We score how well each model
-  does and how closely its decisions, order of work and stated reasons resemble a human expert's.</p>
+  does and how closely its decisions, order of work and stated reasons resemble Marie Curie's (the ground truth).</p>
   <p class="small muted" id="gen"></p>
 </header>
 
@@ -54,7 +54,7 @@
   <div class="grid2">
     <div class="card"><h3>Task</h3><p class="small">Each seed generates new hidden chemistry, so memorised facts do not help. The model sees only the rules and its tool results; reward (0–1) is computed from the true content of the submitted sample: purity, recovery, the target's atomic weight and its chemical carrier.</p></div>
     <div class="card"><h3>Reasons</h3><p class="small">Every tool has a required <code>reason</code> argument: one sentence giving the key reason for the decision. It is recorded with the call and shown step by step on the <a href="runs.html">decisions page</a>, side by side with a human.</p></div>
-    <div class="card"><h3>Human references</h3><p class="small">The <em>human expert protocol</em> is a fixed procedure modelled on the Curies' method, with a human expert's reason for every step. People can add their own runs by playing in the terminal (<code>python -m llm_bench.human play</code>); they then count as human references too.</p></div>
+    <div class="card"><h3>Human references</h3><p class="small"><em>Marie Curie (ground truth)</em> is a fixed procedure modelled on the Curies' method, with her reason for every step. People can add their own runs by playing in the terminal (<code>python -m llm_bench.human play</code>); they then count as human references too.</p></div>
     <div class="card"><h3>Human-likeness</h3><p class="small"><b>Decisions</b>: agreement on the key decisions above. <b>Sequence</b>: 1 − normalised edit distance between phase sequences. <b>Tool mix</b>: 1 − Jensen–Shannon distance of tool usage. <b>Concepts</b>: cosine similarity of the concepts the reasons invoke.</p></div>
   </div>
 </section>
@@ -84,7 +84,7 @@ const llm = D.agents.filter(a => a.kind === "llm");
   const pts = D.agents.filter(a => a.reward != null);
   const box = $("#scatter");
   if (!llm.length) {
-    box.innerHTML = `<div class="empty">No model runs yet. Put your API keys in <code>.env</code> and run<br><code>python -m llm_bench.run --seeds 101 102 103</code><br>The human expert protocol is already recorded; it sits at human-likeness 1 by definition and is shown in the tables below.</div>`;
+    box.innerHTML = `<div class="empty">No model runs yet. Put your API keys in <code>.env</code> and run<br><code>python -m llm_bench.run --seeds 101 102 103</code><br>The Marie Curie ground truth is already recorded; it sits at human-likeness 1 by definition and is shown in the tables below.</div>`;
     return;
   }
   const W = 760, H = 340, m = {l: 52, r: 24, t: 16, b: 44};

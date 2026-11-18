@@ -1,6 +1,6 @@
 """Human baselines.
 
-1. Expert protocol (scripted, with a human expert's reason for each decision):
+1. Marie Curie ground truth (scripted expert protocol, with her reason for each decision):
        python -m llm_bench.human protocol --seeds 101 102 103
 
 2. Play yourself in the terminal; every call asks for your one-sentence reason:
@@ -21,7 +21,7 @@ from policies import reference
 from .agent import _now, build_record, save_record
 from .tools import TOOLS
 
-PROTOCOL_AGENT = {"id": "human-expert-protocol", "label": "Human expert protocol", "family": "Human",
+PROTOCOL_AGENT = {"id": "human-expert-protocol", "label": "Marie Curie (ground truth)", "family": "Human",
                   "provider": "script", "kind": "human"}
 LIST_ARGS = {"sample_ids"}
 FLOAT_ARGS = {"fraction", "hours", "minutes", "atomic_weight"}
