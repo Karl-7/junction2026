@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions and Reasons</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+<nav class="site" aria-label="Site">
+  <a class="brand" href="index.html">Reasoning Like Curie</a>
+  <a href="index.html">Comparison</a>
+  <a href="runs.html" aria-current="page">Decisions &amp; reasons</a>
+</nav>
+<header class="hero">
+  <h1>Every decision, with its key reason</h1>
+  <p class="lead">Pick a seed and two agents to read their runs side by side. Each step shows the tool call, the
+  one-sentence reason the agent gave for it, and the lab's response. The coloured edge marks the phase of work.</p>
+</header>
+
+<div class="controls">
+  <label>Seed <select id="seed"></select></label>
+  <label>Left <select id="a"></select></label>
+  <label>Right <select id="b"></select></label>
+  <label>Phase <select id="phase"><option value="">All phases</option></select></label>
+  <label>Tools <select id="free"><option value="1">Hide free tools</option><option value="0">Show all</option></select></label>
+</div>
+<div class="legend" id="phlegend"></div>
+<div class="cols"><div class="col" id="colA"></div><div class="col" id="colB"></div></div>
+</div>
+<script src="data.js"></script>
+<script>
+const D = window.BENCH || {runs: [], agents: [], phases: []};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
+const q = new URLSearchParams(location.search);
+const seeds = [...new Set(D.runs.map(r => r.seed))].sort((x, y) => x - y);
+const PH_LABEL = {orient: "Orient", decay: "Decay wait", separation: "Chemical separation", crystallisation: "Crystallisation",
+  recycling: "Mother-liquor recycling", analysis: "Analysis", submit: "Submit"};
+$("#phlegend").innerHTML = D.phases.map(p => `<span class="ph-${p}"><span class="dot" style="background:var(--ph)"></span>${PH_LABEL[p] || p}</span>`).join("");
+$("#phase").innerHTML += D.phases.map(p => `<option value="${p}">${PH_LABEL[p] || p}</option>`).join("");
+$("#seed").innerHTML = seeds.map(s => `<option>${s}</option>`).join("");
+
+function agentsFor(seed) { return D.runs.filter(r => r.seed === +seed); }
+function fillAgents() {
+  const rs = agentsFor($("#seed").value);
+  const opts = rs.map(r => `<option value="${esc(r.agent.id)}">${esc(r.agent.label)}</option>`).join("");
+  const keepA = $("#a").value || q.get("a"), keepB = $("#b").value || q.get("b");
+  $("#a").innerHTML = opts; $("#b").innerHTML = opts;
+  const ids = rs.map(r => r.agent.id);
+  const human = rs.find(r => r.agent.kind === "human");
+  const firstLlm = rs.find(r => r.agent.kind !== "human");
+  $("#a").value = ids.includes(keepA) ? keepA : (firstLlm || rs[0] || {agent: {}}).agent.id;
+  $("#b").value = ids.includes(keepB) ? keepB : (human || rs[1] || rs[0] || {agent: {}}).agent.id;
+}
+function args(a) { return Object.entries(a || {}).map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(",") : v}`).join(", "); }
+function brief(res) {
+  const r = {...res}; delete r.actions_left; delete r.time_h;
+  if (r.known_elements) return `${r.known_elements.length} known elements, reagents ${(r.reagents || []).join(", ")}`;
+  if (r.samples) return `${r.samples.length} samples · ${r.actions_left ?? res.actions_left} actions left`;
+  return JSON.stringify(r);
+}
+function col(el, run) {
+  if (!run) { el.innerHTML = `<div class="empty">No run.</div>`; return; }
+  const m = run.metrics, s = m.similarity, hideFree = $("#free").value === "1", ph = $("#phase").value;
+  const steps = run.steps.filter(st => (!hideFree || !["rules", "list_samples"].includes(st.tool)) && (!ph || st.phase === ph));
+  el.innerHTML = `<div class="card"><h3 class="fam-${esc(run.agent.family)}"><span class="dot"></span>${esc(run.agent.label)}</h3>
+    <div class="small muted">seed ${run.seed} · ${esc(run.status || "")} · ${m.actions} actions${run.usage ? ` · ${run.usage.requests} requests, ${(run.usage.input_tokens + run.usage.output_tokens).toLocaleString()} tokens` : ""}</div>
+    <div class="stats">
+      <div><small>Reward</small><b>${m.reward.toFixed(3)}</b></div>
+      <div><small>Human-likeness</small><b>${s ? s.human_likeness.toFixed(2) : (run.agent.kind === "human" ? "ref." : "–")}</b></div>
+      <div><small>Reasons given</small><b>${pct(m.reasons.coverage)}</b></div>
+      <div><small>Purity</small><b>${pct(m.purity)}</b></div>
+      <div><small>Recovery</small><b>${pct(m.recovery)}</b></div>
+      <div><small>Carrier / weight err</small><b>${m.carrier_correct ? "✓" : "✗"} / ${m.weight_error == null ? "–" : (m.weight_error * 100).toFixed(1) + "%"}</b></div>
+    </div>
+    <div class="small muted">True carrier ${esc(run.truth.carrier)}, true atomic weight ${run.truth.target_atomic_weight.toFixed(2)}</div>
+    ${run.final_message ? `<details><summary>Final message</summary><pre>${esc(run.final_message)}</pre></details>` : ""}
+  </div>
+  <ol class="steps">${steps.map(st => `<li class="ph-${st.phase} ${"error" in st.result ? "err" : ""}">
+    <div class="step-head"><span class="n">#${st.i}</span><code>${esc(st.tool)}(${esc(args(st.args))})</code><span class="chip">${PH_LABEL[st.phase] || st.phase}</span></div>
+    <div class="reason ${st.reason ? "" : "none"}">${st.reason ? esc(st.reason) : "no reason given"}</div>
+    <details><summary>${"error" in st.result ? "error: " + esc(st.result.error) : "result"}</summary><pre>${esc(brief(st.result))}</pre></details>
+  </li>`).join("")}</ol>
+  ${steps.length ? "" : `<div class="empty">No steps in this phase.</div>`}`;
+}
+function render() {
+  const rs = agentsFor($("#seed").value);
+  col($("#colA"), rs.find(r => r.agent.id === $("#a").value));
+  col($("#colB"), rs.find(r => r.agent.id === $("#b").value));
+  const u = new URLSearchParams({seed: $("#seed").value, a: $("#a").value, b: $("#b").value});
+  history.replaceState(null, "", "?" + u);
+}
+if (!seeds.length) { $("#colA").innerHTML = `<div class="empty">No runs yet. Run <code>python -m llm_bench.human protocol</code> and <code>python -m llm_bench.run</code>.</div>`; }
+else {
+  $("#seed").value = seeds.includes(+q.get("seed")) ? q.get("seed") : seeds[0];
+  fillAgents(); render();
+  $("#seed").onchange = () => { fillAgents(); render(); };
+  ["#a", "#b", "#phase", "#free"].forEach(s => $(s).onchange = render);
+}
+</script>
+</body>
+</html>

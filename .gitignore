@@ -1,6 +1,5 @@
 .env
 .venv/
 __pycache__/
-runs/
-jobs/
-tasks/
+.pytest_cache/
+results/raw/

@@ -69,9 +69,13 @@ class Lab:
         self.t += self.cfg.hours_for(op)
 
     # ------------------------------------------------------------ dispatch
-    def call(self, tool: str, **args) -> dict:
-        """Single entry point used by the MCP server and by scripted policies."""
-        entry = {"i": len(self.log), "tool": tool, "args": args}
+    def call(self, tool: str, reason: str | None = None, **args) -> dict:
+        """Single entry point used by LLM agents, human players and scripted policies.
+
+        `reason` is the one-sentence key reason the decision-maker gave for this call. It is
+        recorded in the log and never passed to the operation.
+        """
+        entry = {"i": len(self.log), "tool": tool, "args": args, "reason": reason}
         try:
             if self.done and tool not in FREE_TOOLS:
                 raise LabError("episode is over")

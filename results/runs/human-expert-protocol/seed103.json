@@ -1,0 +1,2382 @@
+{
+ "agent": {
+  "id": "human-expert-protocol",
+  "label": "Human expert protocol",
+  "family": "Human",
+  "provider": "script",
+  "kind": "human"
+ },
+ "seed": 103,
+ "config": "default-v1",
+ "steps": [
+  {
+   "i": 0,
+   "tool": "rules",
+   "args": {},
+   "reason": "Read the rules and public data before touching the ore.",
+   "result": {
+    "known_elements": [
+     {
+      "symbol": "Ja",
+      "atomic_weight": 197.22,
+      "spectral_lines_nm": [
+       601.8,
+       642.7
+      ],
+      "line_sensitivity": 0.916,
+      "ore_mass_fraction": 0.0055,
+      "specific_activity_cpm_per_g": 0.0,
+      "half_life": "stable"
+     },
+     {
+      "symbol": "Ju",
+      "atomic_weight": 26.68,
+      "spectral_lines_nm": [
+       448.7,
+       503.6
+      ],
+      "line_sensitivity": 1.133,
+      "ore_mass_fraction": 0.4847,
+      "specific_activity_cpm_per_g": 0.0,
+      "half_life": "stable"
+     },
+     {
+      "symbol": "Qe",
+      "atomic_weight": 146.93,
+      "spectral_lines_nm": [
+       598.0,
+       633.7
+      ],
+      "line_sensitivity": 1.909,
+      "ore_mass_fraction": 0.0056,
+      "specific_activity_cpm_per_g": 0.0,
+      "half_life": "stable"
+     },
+     {
+      "symbol": "Qo",
+      "atomic_weight": 46.62,
+      "spectral_lines_nm": [
+       381.0,
+       540.1
+      ],
+      "line_sensitivity": 0.509,
+      "ore_mass_fraction": 0.1783,
+      "specific_activity_cpm_per_g": 0.0,
+      "half_life": "stable"
+     },
+     {
+      "symbol": "Qu",
+      "atomic_weight": 133.26,
+      "spectral_lines_nm": [
+       522.5,
+       533.4
+      ],
+      "line_sensitivity": 1.067,
+      "ore_mass_fraction": 0.3161,
+      "specific_activity_cpm_per_g": 20.0,
+      "half_life": "very long"
+     },
+     {
+      "symbol": "Qy",
+      "atomic_weight": 75.4,
+      "spectral_lines_nm": [
+       440.8,
+       625.8
+      ],
+      "line_sensitivity": 1.465,
+      "ore_mass_fraction": 0.0095,
+      "specific_activity_cpm_per_g": 0.0,
+      "half_life": "stable"
+     }
+    ],
+    "reagents": [
+     "reagent_A",
+     "reagent_B",
+     "reagent_C",
+     "reagent_D",
+     "reagent_E"
+    ],
+    "budgets": {
+     "max_actions": 100,
+     "reagent_units_each": 3
+    }
+   }
+  },
+  {
+   "i": 1,
+   "tool": "wait",
+   "args": {
+    "hours": 240
+   },
+   "reason": "Let the short-lived interferer decay away so that remaining activity belongs to the long-lived target.",
+   "result": {
+    "waited_h": 240.0,
+    "actions_left": 99,
+    "time_h": 240.0
+   }
+  },
+  {
+   "i": 2,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "ore"
+   },
+   "reason": "The ore must be in solution before any chemical separation.",
+   "result": {
+    "sample_id": "ore",
+    "state": "solution",
+    "actions_left": 98,
+    "time_h": 240.5
+   }
+  },
+  {
+   "i": 3,
+   "tool": "precipitate",
+   "args": {
+    "sample_id": "ore",
+    "reagent": "reagent_A"
+   },
+   "reason": "Split the active fraction with reagent_A to learn which side the target goes to.",
+   "result": {
+    "precipitate": "S1",
+    "filtrate": "S2",
+    "actions_left": 97,
+    "time_h": 241.5
+   }
+  },
+  {
+   "i": 4,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S1",
+    "minutes": 2.0
+   },
+   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "result": {
+    "sample_id": "S1",
+    "counts": 12176,
+    "minutes": 2.0,
+    "gross_cpm": 6088.0,
+    "actions_left": 96,
+    "time_h": 241.63
+   }
+  },
+  {
+   "i": 5,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S2",
+    "minutes": 2.0
+   },
+   "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
+   "result": {
+    "sample_id": "S2",
+    "counts": 23497,
+    "minutes": 2.0,
+    "gross_cpm": 11748.5,
+    "actions_left": 95,
+    "time_h": 241.77
+   }
+  },
+  {
+   "i": 6,
+   "tool": "precipitate",
+   "args": {
+    "sample_id": "S2",
+    "reagent": "reagent_B"
+   },
+   "reason": "Split the active fraction with reagent_B to learn which side the target goes to.",
+   "result": {
+    "precipitate": "S3",
+    "filtrate": "S4",
+    "actions_left": 94,
+    "time_h": 242.77
+   }
+  },
+  {
+   "i": 7,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S3",
+    "minutes": 2.0
+   },
+   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "result": {
+    "sample_id": "S3",
+    "counts": 1581,
+    "minutes": 2.0,
+    "gross_cpm": 790.5,
+    "actions_left": 93,
+    "time_h": 242.9
+   }
+  },
+  {
+   "i": 8,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S4",
+    "minutes": 2.0
+   },
+   "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
+   "result": {
+    "sample_id": "S4",
+    "counts": 22769,
+    "minutes": 2.0,
+    "gross_cpm": 11384.5,
+    "actions_left": 92,
+    "time_h": 243.03
+   }
+  },
+  {
+   "i": 9,
+   "tool": "precipitate",
+   "args": {
+    "sample_id": "S4",
+    "reagent": "reagent_C"
+   },
+   "reason": "Split the active fraction with reagent_C to learn which side the target goes to.",
+   "result": {
+    "precipitate": "S5",
+    "filtrate": "S6",
+    "actions_left": 91,
+    "time_h": 244.03
+   }
+  },
+  {
+   "i": 10,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S5",
+    "minutes": 2.0
+   },
+   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "result": {
+    "sample_id": "S5",
+    "counts": 21824,
+    "minutes": 2.0,
+    "gross_cpm": 10912.0,
+    "actions_left": 90,
+    "time_h": 244.17
+   }
+  },
+  {
+   "i": 11,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S6",
+    "minutes": 2.0
+   },
+   "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
+   "result": {
+    "sample_id": "S6",
+    "counts": 179,
+    "minutes": 2.0,
+    "gross_cpm": 89.5,
+    "actions_left": 89,
+    "time_h": 244.3
+   }
+  },
+  {
+   "i": 12,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S5"
+   },
+   "reason": "The activity followed the precipitate, so dissolve it to continue separating.",
+   "result": {
+    "sample_id": "S5",
+    "state": "solution",
+    "actions_left": 88,
+    "time_h": 244.8
+   }
+  },
+  {
+   "i": 13,
+   "tool": "precipitate",
+   "args": {
+    "sample_id": "S5",
+    "reagent": "reagent_D"
+   },
+   "reason": "Split the active fraction with reagent_D to learn which side the target goes to.",
+   "result": {
+    "precipitate": "S7",
+    "filtrate": "S8",
+    "actions_left": 87,
+    "time_h": 245.8
+   }
+  },
+  {
+   "i": 14,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S7",
+    "minutes": 2.0
+   },
+   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "result": {
+    "sample_id": "S7",
+    "counts": 799,
+    "minutes": 2.0,
+    "gross_cpm": 399.5,
+    "actions_left": 86,
+    "time_h": 245.93
+   }
+  },
+  {
+   "i": 15,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S8",
+    "minutes": 2.0
+   },
+   "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
+   "result": {
+    "sample_id": "S8",
+    "counts": 20777,
+    "minutes": 2.0,
+    "gross_cpm": 10388.5,
+    "actions_left": 85,
+    "time_h": 246.07
+   }
+  },
+  {
+   "i": 16,
+   "tool": "precipitate",
+   "args": {
+    "sample_id": "S8",
+    "reagent": "reagent_E"
+   },
+   "reason": "Split the active fraction with reagent_E to learn which side the target goes to.",
+   "result": {
+    "precipitate": "S9",
+    "filtrate": "S10",
+    "actions_left": 84,
+    "time_h": 247.07
+   }
+  },
+  {
+   "i": 17,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S9",
+    "minutes": 2.0
+   },
+   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "result": {
+    "sample_id": "S9",
+    "counts": 164,
+    "minutes": 2.0,
+    "gross_cpm": 82.0,
+    "actions_left": 83,
+    "time_h": 247.2
+   }
+  },
+  {
+   "i": 18,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S10",
+    "minutes": 2.0
+   },
+   "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
+   "result": {
+    "sample_id": "S10",
+    "counts": 19392,
+    "minutes": 2.0,
+    "gross_cpm": 9696.0,
+    "actions_left": 82,
+    "time_h": 247.33
+   }
+  },
+  {
+   "i": 19,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S10"
+   },
+   "reason": "See which known element travelled with the activity through every reagent: that is the carrier.",
+   "result": {
+    "sample_id": "S10",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0219
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.0538
+     },
+     {
+      "nm": 440.8,
+      "intensity": 1.4434
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0223
+     },
+     {
+      "nm": 625.8,
+      "intensity": 1.3596
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.0614
+     }
+    ],
+    "actions_left": 81,
+    "time_h": 247.83
+   }
+  },
+  {
+   "i": 20,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S10",
+      "state": "solution",
+      "origin": "filtrate of S8 with reagent_E"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 81,
+    "time_h": 247.83
+   }
+  },
+  {
+   "i": 21,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S10",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S11",
+    "mother_liquor": "S12",
+    "actions_left": 80,
+    "time_h": 251.83
+   }
+  },
+  {
+   "i": 22,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S11",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S11",
+    "counts": 16853,
+    "minutes": 2.0,
+    "gross_cpm": 8426.5,
+    "actions_left": 79,
+    "time_h": 251.97
+   }
+  },
+  {
+   "i": 23,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S12",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S12",
+    "counts": 3252,
+    "minutes": 2.0,
+    "gross_cpm": 1626.0,
+    "actions_left": 78,
+    "time_h": 252.1
+   }
+  },
+  {
+   "i": 24,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S11"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S11",
+    "state": "solution",
+    "actions_left": 77,
+    "time_h": 252.6
+   }
+  },
+  {
+   "i": 25,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S12",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S13",
+    "mother_liquor": "S14",
+    "actions_left": 76,
+    "time_h": 256.6
+   }
+  },
+  {
+   "i": 26,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S13"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S13",
+    "state": "solution",
+    "actions_left": 75,
+    "time_h": 257.1
+   }
+  },
+  {
+   "i": 27,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S11",
+     "S13"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S15",
+    "actions_left": 74,
+    "time_h": 257.35
+   }
+  },
+  {
+   "i": 28,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S15"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S15",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0187
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.0849
+     },
+     {
+      "nm": 440.8,
+      "intensity": 1.2418
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0173
+     },
+     {
+      "nm": 625.8,
+      "intensity": 1.5309
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.0858
+     }
+    ],
+    "actions_left": 73,
+    "time_h": 257.85
+   }
+  },
+  {
+   "i": 29,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S15"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S15",
+    "apparent_atomic_weight": 81.99,
+    "actions_left": 72,
+    "time_h": 258.85
+   }
+  },
+  {
+   "i": 30,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S15",
+      "state": "solution",
+      "origin": "combined S11+S13"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 72,
+    "time_h": 258.85
+   }
+  },
+  {
+   "i": 31,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S15",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S16",
+    "mother_liquor": "S17",
+    "actions_left": 71,
+    "time_h": 262.85
+   }
+  },
+  {
+   "i": 32,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S16",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S16",
+    "counts": 15927,
+    "minutes": 2.0,
+    "gross_cpm": 7963.5,
+    "actions_left": 70,
+    "time_h": 262.98
+   }
+  },
+  {
+   "i": 33,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S17",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S17",
+    "counts": 3213,
+    "minutes": 2.0,
+    "gross_cpm": 1606.5,
+    "actions_left": 69,
+    "time_h": 263.12
+   }
+  },
+  {
+   "i": 34,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S16"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S16",
+    "state": "solution",
+    "actions_left": 68,
+    "time_h": 263.62
+   }
+  },
+  {
+   "i": 35,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S17",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S18",
+    "mother_liquor": "S19",
+    "actions_left": 67,
+    "time_h": 267.62
+   }
+  },
+  {
+   "i": 36,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S18"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S18",
+    "state": "solution",
+    "actions_left": 66,
+    "time_h": 268.12
+   }
+  },
+  {
+   "i": 37,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S16",
+     "S18"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S20",
+    "actions_left": 65,
+    "time_h": 268.37
+   }
+  },
+  {
+   "i": 38,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S20"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S20",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0155
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.1336
+     },
+     {
+      "nm": 440.8,
+      "intensity": 1.2539
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0153
+     },
+     {
+      "nm": 625.8,
+      "intensity": 1.3851
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.1143
+     }
+    ],
+    "actions_left": 64,
+    "time_h": 268.87
+   }
+  },
+  {
+   "i": 39,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S20"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S20",
+    "apparent_atomic_weight": 87.1,
+    "actions_left": 63,
+    "time_h": 269.87
+   }
+  },
+  {
+   "i": 40,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S20",
+      "state": "solution",
+      "origin": "combined S16+S18"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 63,
+    "time_h": 269.87
+   }
+  },
+  {
+   "i": 41,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S20",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S21",
+    "mother_liquor": "S22",
+    "actions_left": 62,
+    "time_h": 273.87
+   }
+  },
+  {
+   "i": 42,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S21",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S21",
+    "counts": 15120,
+    "minutes": 2.0,
+    "gross_cpm": 7560.0,
+    "actions_left": 61,
+    "time_h": 274.0
+   }
+  },
+  {
+   "i": 43,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S22",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S22",
+    "counts": 3347,
+    "minutes": 2.0,
+    "gross_cpm": 1673.5,
+    "actions_left": 60,
+    "time_h": 274.13
+   }
+  },
+  {
+   "i": 44,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S21"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S21",
+    "state": "solution",
+    "actions_left": 59,
+    "time_h": 274.63
+   }
+  },
+  {
+   "i": 45,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S22",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S23",
+    "mother_liquor": "S24",
+    "actions_left": 58,
+    "time_h": 278.63
+   }
+  },
+  {
+   "i": 46,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S23"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S23",
+    "state": "solution",
+    "actions_left": 57,
+    "time_h": 279.13
+   }
+  },
+  {
+   "i": 47,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S21",
+     "S23"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S25",
+    "actions_left": 56,
+    "time_h": 279.38
+   }
+  },
+  {
+   "i": 48,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S25"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S25",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0133
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.2028
+     },
+     {
+      "nm": 440.8,
+      "intensity": 1.2304
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0139
+     },
+     {
+      "nm": 625.8,
+      "intensity": 1.2386
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.1936
+     }
+    ],
+    "actions_left": 55,
+    "time_h": 279.88
+   }
+  },
+  {
+   "i": 49,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S25"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S25",
+    "apparent_atomic_weight": 93.76,
+    "actions_left": 54,
+    "time_h": 280.88
+   }
+  },
+  {
+   "i": 50,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S24",
+      "state": "solution",
+      "origin": "mother liquor of S22"
+     },
+     {
+      "id": "S25",
+      "state": "solution",
+      "origin": "combined S21+S23"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 54,
+    "time_h": 280.88
+   }
+  },
+  {
+   "i": 51,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S25",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S26",
+    "mother_liquor": "S27",
+    "actions_left": 53,
+    "time_h": 284.88
+   }
+  },
+  {
+   "i": 52,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S26",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S26",
+    "counts": 13765,
+    "minutes": 2.0,
+    "gross_cpm": 6882.5,
+    "actions_left": 52,
+    "time_h": 285.02
+   }
+  },
+  {
+   "i": 53,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S27",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S27",
+    "counts": 3141,
+    "minutes": 2.0,
+    "gross_cpm": 1570.5,
+    "actions_left": 51,
+    "time_h": 285.15
+   }
+  },
+  {
+   "i": 54,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S26"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S26",
+    "state": "solution",
+    "actions_left": 50,
+    "time_h": 285.65
+   }
+  },
+  {
+   "i": 55,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S27",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S28",
+    "mother_liquor": "S29",
+    "actions_left": 49,
+    "time_h": 289.65
+   }
+  },
+  {
+   "i": 56,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S28"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S28",
+    "state": "solution",
+    "actions_left": 48,
+    "time_h": 290.15
+   }
+  },
+  {
+   "i": 57,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S26",
+     "S28"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S30",
+    "actions_left": 47,
+    "time_h": 290.4
+   }
+  },
+  {
+   "i": 58,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S30"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S30",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0111
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.3224
+     },
+     {
+      "nm": 440.8,
+      "intensity": 1.2807
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0112
+     },
+     {
+      "nm": 625.8,
+      "intensity": 1.1647
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.302
+     }
+    ],
+    "actions_left": 46,
+    "time_h": 290.9
+   }
+  },
+  {
+   "i": 59,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S30"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S30",
+    "apparent_atomic_weight": 102.23,
+    "actions_left": 45,
+    "time_h": 291.9
+   }
+  },
+  {
+   "i": 60,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S24",
+      "state": "solution",
+      "origin": "mother liquor of S22"
+     },
+     {
+      "id": "S29",
+      "state": "solution",
+      "origin": "mother liquor of S27"
+     },
+     {
+      "id": "S30",
+      "state": "solution",
+      "origin": "combined S26+S28"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 45,
+    "time_h": 291.9
+   }
+  },
+  {
+   "i": 61,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S30",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S31",
+    "mother_liquor": "S32",
+    "actions_left": 44,
+    "time_h": 295.9
+   }
+  },
+  {
+   "i": 62,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S31",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S31",
+    "counts": 12753,
+    "minutes": 2.0,
+    "gross_cpm": 6376.5,
+    "actions_left": 43,
+    "time_h": 296.03
+   }
+  },
+  {
+   "i": 63,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S32",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S32",
+    "counts": 3391,
+    "minutes": 2.0,
+    "gross_cpm": 1695.5,
+    "actions_left": 42,
+    "time_h": 296.17
+   }
+  },
+  {
+   "i": 64,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S31"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S31",
+    "state": "solution",
+    "actions_left": 41,
+    "time_h": 296.67
+   }
+  },
+  {
+   "i": 65,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S32",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S33",
+    "mother_liquor": "S34",
+    "actions_left": 40,
+    "time_h": 300.67
+   }
+  },
+  {
+   "i": 66,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S33"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S33",
+    "state": "solution",
+    "actions_left": 39,
+    "time_h": 301.17
+   }
+  },
+  {
+   "i": 67,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S31",
+     "S33"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S35",
+    "actions_left": 38,
+    "time_h": 301.42
+   }
+  },
+  {
+   "i": 68,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S35"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S35",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0081
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.4834
+     },
+     {
+      "nm": 440.8,
+      "intensity": 1.1214
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0081
+     },
+     {
+      "nm": 625.8,
+      "intensity": 1.1213
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.4587
+     }
+    ],
+    "actions_left": 37,
+    "time_h": 301.92
+   }
+  },
+  {
+   "i": 69,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S35"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S35",
+    "apparent_atomic_weight": 117.19,
+    "actions_left": 36,
+    "time_h": 302.92
+   }
+  },
+  {
+   "i": 70,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S24",
+      "state": "solution",
+      "origin": "mother liquor of S22"
+     },
+     {
+      "id": "S29",
+      "state": "solution",
+      "origin": "mother liquor of S27"
+     },
+     {
+      "id": "S34",
+      "state": "solution",
+      "origin": "mother liquor of S32"
+     },
+     {
+      "id": "S35",
+      "state": "solution",
+      "origin": "combined S31+S33"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 36,
+    "time_h": 302.92
+   }
+  },
+  {
+   "i": 71,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S35",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S36",
+    "mother_liquor": "S37",
+    "actions_left": 35,
+    "time_h": 306.92
+   }
+  },
+  {
+   "i": 72,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S36",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S36",
+    "counts": 12364,
+    "minutes": 2.0,
+    "gross_cpm": 6182.0,
+    "actions_left": 34,
+    "time_h": 307.05
+   }
+  },
+  {
+   "i": 73,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S37",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S37",
+    "counts": 3692,
+    "minutes": 2.0,
+    "gross_cpm": 1846.0,
+    "actions_left": 33,
+    "time_h": 307.18
+   }
+  },
+  {
+   "i": 74,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S36"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S36",
+    "state": "solution",
+    "actions_left": 32,
+    "time_h": 307.68
+   }
+  },
+  {
+   "i": 75,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S37",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S38",
+    "mother_liquor": "S39",
+    "actions_left": 31,
+    "time_h": 311.68
+   }
+  },
+  {
+   "i": 76,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S38"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S38",
+    "state": "solution",
+    "actions_left": 30,
+    "time_h": 312.18
+   }
+  },
+  {
+   "i": 77,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S36",
+     "S38"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S40",
+    "actions_left": 29,
+    "time_h": 312.43
+   }
+  },
+  {
+   "i": 78,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S40"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S40",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0055
+     },
+     {
+      "nm": 426.2,
+      "intensity": 0.7652
+     },
+     {
+      "nm": 440.8,
+      "intensity": 0.9254
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0063
+     },
+     {
+      "nm": 625.8,
+      "intensity": 0.9173
+     },
+     {
+      "nm": 631.3,
+      "intensity": 0.6475
+     }
+    ],
+    "actions_left": 28,
+    "time_h": 312.93
+   }
+  },
+  {
+   "i": 79,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S40"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S40",
+    "apparent_atomic_weight": 137.83,
+    "actions_left": 27,
+    "time_h": 313.93
+   }
+  },
+  {
+   "i": 80,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S24",
+      "state": "solution",
+      "origin": "mother liquor of S22"
+     },
+     {
+      "id": "S29",
+      "state": "solution",
+      "origin": "mother liquor of S27"
+     },
+     {
+      "id": "S34",
+      "state": "solution",
+      "origin": "mother liquor of S32"
+     },
+     {
+      "id": "S39",
+      "state": "solution",
+      "origin": "mother liquor of S37"
+     },
+     {
+      "id": "S40",
+      "state": "solution",
+      "origin": "combined S36+S38"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 27,
+    "time_h": 313.93
+   }
+  },
+  {
+   "i": 81,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S40",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S41",
+    "mother_liquor": "S42",
+    "actions_left": 26,
+    "time_h": 317.93
+   }
+  },
+  {
+   "i": 82,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S41",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S41",
+    "counts": 9975,
+    "minutes": 2.0,
+    "gross_cpm": 4987.5,
+    "actions_left": 25,
+    "time_h": 318.07
+   }
+  },
+  {
+   "i": 83,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S42",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S42",
+    "counts": 4126,
+    "minutes": 2.0,
+    "gross_cpm": 2063.0,
+    "actions_left": 24,
+    "time_h": 318.2
+   }
+  },
+  {
+   "i": 84,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S41"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S41",
+    "state": "solution",
+    "actions_left": 23,
+    "time_h": 318.7
+   }
+  },
+  {
+   "i": 85,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S42",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S43",
+    "mother_liquor": "S44",
+    "actions_left": 22,
+    "time_h": 322.7
+   }
+  },
+  {
+   "i": 86,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S43"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S43",
+    "state": "solution",
+    "actions_left": 21,
+    "time_h": 323.2
+   }
+  },
+  {
+   "i": 87,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S41",
+     "S43"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S45",
+    "actions_left": 20,
+    "time_h": 323.45
+   }
+  },
+  {
+   "i": 88,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S45"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S45",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0039
+     },
+     {
+      "nm": 426.2,
+      "intensity": 1.0175
+     },
+     {
+      "nm": 440.8,
+      "intensity": 0.7633
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0038
+     },
+     {
+      "nm": 625.8,
+      "intensity": 0.6715
+     },
+     {
+      "nm": 631.3,
+      "intensity": 1.0327
+     }
+    ],
+    "actions_left": 19,
+    "time_h": 323.95
+   }
+  },
+  {
+   "i": 89,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S45"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S45",
+    "apparent_atomic_weight": 168.3,
+    "actions_left": 18,
+    "time_h": 324.95
+   }
+  },
+  {
+   "i": 90,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S24",
+      "state": "solution",
+      "origin": "mother liquor of S22"
+     },
+     {
+      "id": "S29",
+      "state": "solution",
+      "origin": "mother liquor of S27"
+     },
+     {
+      "id": "S34",
+      "state": "solution",
+      "origin": "mother liquor of S32"
+     },
+     {
+      "id": "S39",
+      "state": "solution",
+      "origin": "mother liquor of S37"
+     },
+     {
+      "id": "S44",
+      "state": "solution",
+      "origin": "mother liquor of S42"
+     },
+     {
+      "id": "S45",
+      "state": "solution",
+      "origin": "combined S41+S43"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 18,
+    "time_h": 324.95
+   }
+  },
+  {
+   "i": 91,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S45",
+    "fraction": 0.4
+   },
+   "reason": "The target cannot be split from its carrier by reagents, so enrich it by fractional crystallisation.",
+   "result": {
+    "crystals": "S46",
+    "mother_liquor": "S47",
+    "actions_left": 17,
+    "time_h": 328.95
+   }
+  },
+  {
+   "i": 92,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S46",
+    "minutes": 2.0
+   },
+   "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
+   "result": {
+    "sample_id": "S46",
+    "counts": 8296,
+    "minutes": 2.0,
+    "gross_cpm": 4148.0,
+    "actions_left": 16,
+    "time_h": 329.08
+   }
+  },
+  {
+   "i": 93,
+   "tool": "measure_activity",
+   "args": {
+    "sample_id": "S47",
+    "minutes": 2.0
+   },
+   "reason": "Count the mother liquor to compare specific activity with the crystals.",
+   "result": {
+    "sample_id": "S47",
+    "counts": 4898,
+    "minutes": 2.0,
+    "gross_cpm": 2449.0,
+    "actions_left": 15,
+    "time_h": 329.22
+   }
+  },
+  {
+   "i": 94,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S46"
+   },
+   "reason": "Redissolve the enriched crystals for the next round.",
+   "result": {
+    "sample_id": "S46",
+    "state": "solution",
+    "actions_left": 14,
+    "time_h": 329.72
+   }
+  },
+  {
+   "i": 95,
+   "tool": "crystallize",
+   "args": {
+    "sample_id": "S47",
+    "fraction": 0.4
+   },
+   "reason": "The mother liquor still holds a lot of target; recrystallise it so recovery does not collapse.",
+   "result": {
+    "crystals": "S48",
+    "mother_liquor": "S49",
+    "actions_left": 13,
+    "time_h": 333.72
+   }
+  },
+  {
+   "i": 96,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S48"
+   },
+   "reason": "Dissolve the recovered crystals so they can be merged back into the main fraction.",
+   "result": {
+    "sample_id": "S48",
+    "state": "solution",
+    "actions_left": 12,
+    "time_h": 334.22
+   }
+  },
+  {
+   "i": 97,
+   "tool": "combine",
+   "args": {
+    "sample_ids": [
+     "S46",
+     "S48"
+    ]
+   },
+   "reason": "Merge the recovered target back into the main fraction to keep recovery high.",
+   "result": {
+    "sample_id": "S50",
+    "actions_left": 11,
+    "time_h": 334.47
+   }
+  },
+  {
+   "i": 98,
+   "tool": "spectrum",
+   "args": {
+    "sample_id": "S50"
+   },
+   "reason": "Estimate purity from how much of the sample the known elements' lines still account for.",
+   "result": {
+    "sample_id": "S50",
+    "lines": [
+     {
+      "nm": 381.0,
+      "intensity": 0.0018
+     },
+     {
+      "nm": 426.2,
+      "intensity": 1.4249
+     },
+     {
+      "nm": 440.8,
+      "intensity": 0.4098
+     },
+     {
+      "nm": 540.1,
+      "intensity": 0.0018
+     },
+     {
+      "nm": 625.8,
+      "intensity": 0.3847
+     },
+     {
+      "nm": 631.3,
+      "intensity": 1.495
+     }
+    ],
+    "actions_left": 10,
+    "time_h": 334.97
+   }
+  },
+  {
+   "i": 99,
+   "tool": "atomic_weight",
+   "args": {
+    "sample_id": "S50"
+   },
+   "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
+   "result": {
+    "sample_id": "S50",
+    "apparent_atomic_weight": 204.3,
+    "actions_left": 9,
+    "time_h": 335.97
+   }
+  },
+  {
+   "i": 100,
+   "tool": "list_samples",
+   "args": {},
+   "reason": "Check the remaining budget before another round.",
+   "result": {
+    "samples": [
+     {
+      "id": "S1",
+      "state": "solid",
+      "origin": "precipitate of ore with reagent_A"
+     },
+     {
+      "id": "S3",
+      "state": "solid",
+      "origin": "precipitate of S2 with reagent_B"
+     },
+     {
+      "id": "S6",
+      "state": "solution",
+      "origin": "filtrate of S4 with reagent_C"
+     },
+     {
+      "id": "S7",
+      "state": "solid",
+      "origin": "precipitate of S5 with reagent_D"
+     },
+     {
+      "id": "S9",
+      "state": "solid",
+      "origin": "precipitate of S8 with reagent_E"
+     },
+     {
+      "id": "S14",
+      "state": "solution",
+      "origin": "mother liquor of S12"
+     },
+     {
+      "id": "S19",
+      "state": "solution",
+      "origin": "mother liquor of S17"
+     },
+     {
+      "id": "S24",
+      "state": "solution",
+      "origin": "mother liquor of S22"
+     },
+     {
+      "id": "S29",
+      "state": "solution",
+      "origin": "mother liquor of S27"
+     },
+     {
+      "id": "S34",
+      "state": "solution",
+      "origin": "mother liquor of S32"
+     },
+     {
+      "id": "S39",
+      "state": "solution",
+      "origin": "mother liquor of S37"
+     },
+     {
+      "id": "S44",
+      "state": "solution",
+      "origin": "mother liquor of S42"
+     },
+     {
+      "id": "S49",
+      "state": "solution",
+      "origin": "mother liquor of S47"
+     },
+     {
+      "id": "S50",
+      "state": "solution",
+      "origin": "combined S46+S48"
+     }
+    ],
+    "reagents_left": {
+     "reagent_A": 2,
+     "reagent_B": 2,
+     "reagent_C": 2,
+     "reagent_D": 2,
+     "reagent_E": 2
+    },
+    "actions_left": 9,
+    "time_h": 335.97
+   }
+  },
+  {
+   "i": 101,
+   "tool": "submit",
+   "args": {
+    "sample_id": "S50",
+    "atomic_weight": 253.26,
+    "carrier": "Qy"
+   },
+   "reason": "Purity is near the goal with recovery kept high, so submit with the contaminant-corrected atomic weight.",
+   "result": {
+    "submitted": "S50",
+    "message": "episode over; score computed by the server",
+    "actions_left": 8,
+    "time_h": 335.97
+   }
+  }
+ ],
+ "actions": 92,
+ "time_h": 335.97,
+ "result": {
+  "reward": 0.861914,
+  "purity": 0.722460396635973,
+  "recovery": 0.4783296694206048,
+  "purity_score": 0.8027337740399699,
+  "recovery_score": 1.0,
+  "separation": 0.8027337740399699,
+  "report_gated_in": true,
+  "weight_credit": 1.0,
+  "carrier_credit": 1.0,
+  "report": 1.0,
+  "submitted": {
+   "sample_id": "S50",
+   "atomic_weight": 253.26,
+   "carrier": "Qy"
+  }
+ },
+ "truth": {
+  "carrier": "Qy",
+  "interferer_carrier": "Ja",
+  "target_atomic_weight": 254.71
+ },
+ "status": "submitted",
+ "missing_reasons": 0
+}

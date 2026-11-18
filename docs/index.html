@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reasoning Like Curie</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+<nav class="site" aria-label="Site">
+  <a class="brand" href="index.html">Reasoning Like Curie</a>
+  <a href="index.html" aria-current="page">Comparison</a>
+  <a href="runs.html">Decisions &amp; reasons</a>
+</nav>
+
+<header class="hero">
+  <div class="eyebrow">Junction 2026 · LLM reasoning study</div>
+  <h1>How human is the way LLMs reason through a scientific discovery?</h1>
+  <p class="lead">Claude, GPT and Gemini models each try to isolate an unknown radioactive element in a simulated
+  lab, the way Marie Curie did: separate the ore, follow the radioactivity, purify by fractional crystallisation.
+  Every tool call carries the model's own one-sentence <strong>key reason</strong>. We score how well each model
+  does and how closely its decisions, order of work and stated reasons resemble a human expert's.</p>
+  <p class="small muted" id="gen"></p>
+</header>
+
+<section>
+  <h2>Performance vs. human-likeness</h2>
+  <p class="sub">Each dot is one agent, averaged over its seeds. Right = higher task reward; up = reasoning closer to the human references on the same seeds.</p>
+  <div class="legend" id="legend"></div>
+  <div class="card" id="scatter"></div>
+</section>
+
+<section>
+  <h2>Leaderboard</h2>
+  <p class="sub">Human-likeness is the mean of four similarities to the human runs on the same seed. Click an agent to read its decisions and reasons.</p>
+  <div class="card scroll"><table id="board"></table></div>
+</section>
+
+<section>
+  <h2>Key decisions</h2>
+  <p class="sub">The decisions a radiochemist has to get right. Each cell shows on how many seeds the agent made that decision.</p>
+  <div class="card scroll"><table id="decisions"></table></div>
+</section>
+
+<section>
+  <h2>What the reasons talk about</h2>
+  <p class="sub">Share of an agent's one-sentence reasons that invoke each scientific concept (keyword-matched). Darker = more often.</p>
+  <div class="card scroll"><table id="concepts"></table></div>
+</section>
+
+<section>
+  <h2>Method</h2>
+  <div class="grid2">
+    <div class="card"><h3>Task</h3><p class="small">Each seed generates new hidden chemistry, so memorised facts do not help. The model sees only the rules and its tool results; reward (0–1) is computed from the true content of the submitted sample: purity, recovery, the target's atomic weight and its chemical carrier.</p></div>
+    <div class="card"><h3>Reasons</h3><p class="small">Every tool has a required <code>reason</code> argument: one sentence giving the key reason for the decision. It is recorded with the call and shown step by step on the <a href="runs.html">decisions page</a>, side by side with a human.</p></div>
+    <div class="card"><h3>Human references</h3><p class="small">The <em>human expert protocol</em> is a fixed procedure modelled on the Curies' method, with a human expert's reason for every step. People can add their own runs by playing in the terminal (<code>python -m llm_bench.human play</code>); they then count as human references too.</p></div>
+    <div class="card"><h3>Human-likeness</h3><p class="small"><b>Decisions</b>: agreement on the key decisions above. <b>Sequence</b>: 1 − normalised edit distance between phase sequences. <b>Tool mix</b>: 1 − Jensen–Shannon distance of tool usage. <b>Concepts</b>: cosine similarity of the concepts the reasons invoke.</p></div>
+  </div>
+</section>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+<script src="data.js"></script>
+<script>
+const D = window.BENCH || {agents: [], runs: [], decisions: {}, concepts: [], families: []};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
+const f2 = v => v == null ? "–" : v.toFixed(2);
+const tip = $("#tip");
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = "block";
+  const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8), y = Math.min(e.clientY + 14, innerHeight - tip.offsetHeight - 8);
+  tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip() { tip.style.display = "none"; }
+const agentCell = a => `<a class="agent fam-${esc(a.family)}" href="runs.html?a=${encodeURIComponent(a.id)}&seed=${a.seeds[0] ?? ""}"><span class="dot"></span>${esc(a.label)}</a>`;
+const bar = v => v == null ? "–" : `<span class="bar">${f2(v)}<span class="track"><span class="fill" style="width:${Math.max(0, Math.min(1, v)) * 100}%"></span></span></span>`;
+
+$("#gen").textContent = D.generated_at ? `Data generated ${D.generated_at.replace("T", " ")} UTC · ${D.runs.length} runs` : "";
+$("#legend").innerHTML = D.families.map(f => `<span class="fam-${f}"><span class="dot"></span>${f}</span>`).join("");
+
+const llm = D.agents.filter(a => a.kind === "llm");
+// ---------------------------------------------------------------- scatter
+(function scatter() {
+  const pts = D.agents.filter(a => a.reward != null);
+  const box = $("#scatter");
+  if (!llm.length) {
+    box.innerHTML = `<div class="empty">No model runs yet. Put your API keys in <code>.env</code> and run<br><code>python -m llm_bench.run --seeds 101 102 103</code><br>The human expert protocol is already recorded; it sits at human-likeness 1 by definition and is shown in the tables below.</div>`;
+    return;
+  }
+  const W = 760, H = 340, m = {l: 52, r: 24, t: 16, b: 44};
+  const x = v => m.l + v * (W - m.l - m.r), y = v => H - m.b - v * (H - m.t - m.b);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Scatter of reward against human-likeness">`;
+  for (let i = 0; i <= 5; i++) { const v = i / 5;
+    s += `<line x1="${x(0)}" x2="${x(1)}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(1)}</text>`;
+    s += `<line y1="${y(0)}" y2="${y(0) + 4}" x1="${x(v)}" x2="${x(v)}" stroke="var(--grid)"/><text x="${x(v)}" y="${y(0) + 18}" text-anchor="middle">${v.toFixed(1)}</text>`; }
+  s += `<text x="${(x(0) + x(1)) / 2}" y="${H - 6}" text-anchor="middle">Task reward</text>`;
+  s += `<text transform="translate(14 ${(y(0) + y(1)) / 2}) rotate(-90)" text-anchor="middle">Human-likeness</text>`;
+  pts.forEach((a, i) => {
+    const hl = a.similarity ? a.similarity.human_likeness : (a.kind === "human" ? 1 : 0);
+    const cx = x(a.reward), cy = y(hl);
+    s += `<g class="fam-${esc(a.family)}" data-i="${i}" style="cursor:pointer"><circle cx="${cx}" cy="${cy}" r="14" fill="transparent"/>` +
+         `<circle cx="${cx}" cy="${cy}" r="6" fill="var(--fam)" stroke="var(--surface-1)" stroke-width="2"/>` +
+         `<text x="${cx > W * 0.65 ? cx - 10 : cx + 10}" y="${cy - 8}" text-anchor="${cx > W * 0.65 ? "end" : "start"}" style="fill:var(--text-primary)">${esc(a.label)}</text></g>`;
+  });
+  box.innerHTML = s + "</svg>";
+  box.querySelectorAll("g[data-i]").forEach(g => {
+    const a = pts[+g.dataset.i];
+    g.addEventListener("mousemove", e => showTip(e, `<b>${esc(a.label)}</b><br>Reward ${f2(a.reward)} · Human-likeness ${a.similarity ? f2(a.similarity.human_likeness) : (a.kind === "human" ? "reference" : "–")}<br>Seeds: ${a.seeds.join(", ")}`));
+    g.addEventListener("mouseleave", hideTip);
+    g.addEventListener("click", () => location.href = `runs.html?a=${encodeURIComponent(a.id)}&seed=${a.seeds[0]}`);
+  });
+})();
+
+// ---------------------------------------------------------------- leaderboard
+$("#board").innerHTML = `<thead><tr><th>Agent</th><th class="num">Seeds</th><th class="num">Reward</th><th class="num">Human-likeness</th>
+  <th class="num">Decisions</th><th class="num">Sequence</th><th class="num">Tool mix</th><th class="num">Concepts</th>
+  <th class="num">Purity</th><th class="num">Recovery</th><th class="num">Carrier ✓</th><th class="num">Weight err</th>
+  <th class="num">Actions</th><th class="num">Reasons given</th><th class="num">Words / reason</th></tr></thead><tbody>` +
+  D.agents.map(a => { const s = a.similarity || {}; const ref = a.kind === "human" && !a.similarity;
+    return `<tr><td>${agentCell(a)}${a.errors ? ` <span class="small mark-no" title="runs that hit an API error are excluded">${a.errors} errored</span>` : ""}</td>
+    <td class="num">${a.seeds.length}</td><td class="num">${bar(a.reward)}</td>
+    <td class="num">${ref ? '<span class="muted">reference</span>' : bar(s.human_likeness)}</td>
+    <td class="num">${f2(s.decisions)}</td><td class="num">${f2(s.sequence)}</td><td class="num">${f2(s.tool_mix)}</td><td class="num">${f2(s.concepts)}</td>
+    <td class="num">${pct(a.purity)}</td><td class="num">${pct(a.recovery)}</td><td class="num">${pct(a.carrier)}</td>
+    <td class="num">${a.weight_error == null ? "–" : (a.weight_error * 100).toFixed(1) + "%"}</td>
+    <td class="num">${a.actions == null ? "–" : a.actions.toFixed(0)}</td><td class="num">${pct(a.reason_coverage)}</td>
+    <td class="num">${a.reason_words == null ? "–" : a.reason_words.toFixed(1)}</td></tr>`; }).join("") + "</tbody>";
+
+// ---------------------------------------------------------------- decisions
+const dk = Object.keys(D.decisions);
+$("#decisions").innerHTML = `<thead><tr><th>Agent</th>${dk.map(k => `<th title="${esc(D.decisions[k])}">${esc(D.decisions[k])}</th>`).join("")}</tr></thead><tbody>` +
+  D.agents.map(a => `<tr><td>${agentCell(a)}</td>${dk.map(k => { const v = a.decisions[k], n = a.seeds.length, c = Math.round((v ?? 0) * n);
+    const cls = v == null ? "" : v >= 1 ? "mark-yes" : v <= 0 ? "mark-no" : "mark-part";
+    const sym = v == null ? "–" : v >= 1 ? "✓" : v <= 0 ? "✗" : "◐";
+    return `<td class="num ${cls}" style="text-align:center">${sym} <span class="small">${c}/${n}</span></td>`; }).join("")}</tr>`).join("") + "</tbody>";
+
+// ---------------------------------------------------------------- concepts heatmap
+const step = v => v <= 0 ? 0 : v < .1 ? 1 : v < .25 ? 2 : v < .45 ? 3 : 4;
+$("#concepts").innerHTML = `<thead><tr><th>Agent</th>${D.concepts.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>` +
+  D.agents.map(a => `<tr><td>${agentCell(a)}</td>${D.concepts.map(c => { const v = a.concepts[c] ?? 0, k = step(v);
+    return `<td class="heat k${k}" title="${esc(a.label)} · ${esc(c)}: ${pct(v)} of reasons">${pct(v)}</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+</script>
+</body>
+</html>
