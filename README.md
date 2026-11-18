@@ -1,19 +1,36 @@
 # Reasoning Like Curie
 
-**How close is LLM reasoning to human reasoning during a scientific discovery?**
+**Do large language models reason like humans when they make a scientific discovery?**
 
-Claude, GPT and Gemini models each work through the same simulated radiochemistry problem: isolate an
-unknown radioactive element from an ore, much as Marie Curie did. They have to separate the ore chemically,
-follow the radioactivity, concentrate the element by fractional crystallisation and report what they found.
-Every tool call must carry a one-sentence **key reason** for the decision. The site then shows, step by step,
-what each model did and why, next to a human doing the same seed. It also scores each model on two axes:
+We give Claude, GPT and Gemini models the same lab puzzle: find and purify an unknown radioactive element
+hidden in an ore, the way Marie Curie did. The models work through tools (dissolve, precipitate,
+crystallise, measure, …). **Every time a model acts, it must say why in one sentence.** We then compare
+each model with a human doing the same puzzle:
 
-* **Task performance:** reward in [0, 1], computed from the true contents of the submitted sample.
-* **Human-likeness:** how similar its decisions, order of work, tool use and stated reasons are to the
-  human runs on the same seed.
+* **How well did it do?** A reward from 0 to 1, computed from the sample it hands in.
+* **How human was its thinking?** Did it make the same key decisions, in the same order, for the same reasons?
 
-Each seed generates new hidden chemistry. Recalling facts about real elements does not help (the
-environment uses no real element names), so a model has to reason from the evidence it collects.
+![Overview: Claude, GPT, Gemini and a human solve the same lab task; every action carries a one-sentence reason; results are scored for reward and human-likeness](docs/images/overview.svg)
+
+## The puzzle
+
+Each run generates new hidden chemistry, so memorised facts don't help. The model has to reason from
+its own measurements. A careful human chemist goes through these steps:
+
+![The five steps of a good run: wait for the short-lived element to decay, separate chemically while following the radioactivity, crystallise, recycle the mother liquor, then submit](docs/images/episode.svg)
+
+Skipping steps costs reward. In this project's earlier tests, for example, Claude Haiku never did step 4: it
+threw away the target element left behind in each mother liquor. The website shows exactly where a model's reasoning departs from the human's.
+
+## The website
+
+`docs/runs.html` lists every decision with its one-sentence reason, so you can read two agents side by side
+(for example a model next to the human). `docs/index.html` compares all models: reward against
+human-likeness, the key decisions each one made, and which scientific ideas appear in its reasons.
+
+![The decisions-and-reasons page, showing the human expert's run step by step with the reason for each action](docs/images/reasons-viewer.png)
+
+*Screenshot: the human expert's run on seed 101. Model runs appear here once you run the models.*
 
 ## Quick start
 

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" width="960" height="250" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f6e69"/></marker></defs>
+  <rect width="960" height="250" rx="16" fill="#fcfcfb"/>
+  <text x="32" y="40" font-size="20" font-weight="700" fill="#0b0b0b">What a good (human-like) run looks like</text>
+  <g font-size="13">
+    <rect x="32" y="64" width="168" height="150" rx="10" fill="#ffffff" stroke="#6250d6" stroke-width="2"/>
+    <text x="48" y="90" font-size="15" font-weight="700" fill="#0b0b0b">1 · Wait</text>
+    <text x="48" y="114" fill="#52514e">A short-lived element</text><text x="48" y="132" fill="#52514e">fakes the signal.</text><text x="48" y="150" fill="#52514e">Let it decay first.</text>
+    <path d="M204 139 H222" stroke="#6f6e69" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="226" y="64" width="168" height="150" rx="10" fill="#ffffff" stroke="#2a78d6" stroke-width="2"/>
+    <text x="242" y="90" font-size="15" font-weight="700" fill="#0b0b0b">2 · Separate</text>
+    <text x="242" y="114" fill="#52514e">Precipitate with each</text><text x="242" y="132" fill="#52514e">reagent; measure both</text><text x="242" y="150" fill="#52514e">products; follow the</text><text x="242" y="168" fill="#52514e">radioactivity.</text>
+    <path d="M398 139 H416" stroke="#6f6e69" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="420" y="64" width="168" height="150" rx="10" fill="#ffffff" stroke="#eb6834" stroke-width="2"/>
+    <text x="436" y="90" font-size="15" font-weight="700" fill="#0b0b0b">3 · Crystallise</text>
+    <text x="436" y="114" fill="#52514e">Enrich the target over</text><text x="436" y="132" fill="#52514e">its carrier, round after</text><text x="436" y="150" fill="#52514e">round.</text>
+    <path d="M592 139 H610" stroke="#6f6e69" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="614" y="64" width="166" height="150" rx="10" fill="#ffffff" stroke="#1baf7a" stroke-width="2"/>
+    <text x="630" y="90" font-size="15" font-weight="700" fill="#0b0b0b">4 · Recycle</text>
+    <text x="630" y="114" fill="#52514e">Recover target from</text><text x="630" y="132" fill="#52514e">the mother liquor and</text><text x="630" y="150" fill="#52514e">merge it back.</text>
+    <path d="M697 218 C697 238 504 238 504 218" fill="none" stroke="#6f6e69" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+    <text x="520" y="246" font-size="11" fill="#6f6e69">repeat until pure enough</text>
+    <path d="M784 139 H798" stroke="#6f6e69" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="802" y="64" width="138" height="150" rx="10" fill="#ffffff" stroke="#0b0b0b" stroke-width="2"/>
+    <text x="818" y="90" font-size="15" font-weight="700" fill="#0b0b0b">5 · Submit</text>
+    <text x="818" y="114" fill="#52514e">Check spectrum,</text><text x="818" y="132" fill="#52514e">correct atomic</text><text x="818" y="150" fill="#52514e">weight, name the</text><text x="818" y="168" fill="#52514e">carrier element.</text>
+  </g>
+</svg>

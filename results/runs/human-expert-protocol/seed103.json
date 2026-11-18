@@ -151,7 +151,7 @@
     "sample_id": "S1",
     "minutes": 2.0
    },
-   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S1",
     "counts": 12176,
@@ -200,7 +200,7 @@
     "sample_id": "S3",
     "minutes": 2.0
    },
-   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S3",
     "counts": 1581,
@@ -249,7 +249,7 @@
     "sample_id": "S5",
     "minutes": 2.0
    },
-   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S5",
     "counts": 21824,
@@ -312,7 +312,7 @@
     "sample_id": "S7",
     "minutes": 2.0
    },
-   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S7",
     "counts": 799,
@@ -361,7 +361,7 @@
     "sample_id": "S9",
     "minutes": 2.0
    },
-   "reason": "Count the precipitate to see whether the target's activity went with it.",
+   "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S9",
     "counts": 164,
