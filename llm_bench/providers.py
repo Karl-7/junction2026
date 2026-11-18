@@ -14,6 +14,8 @@ from __future__ import annotations
 import copy
 import json
 import os
+import re
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -54,8 +56,21 @@ def _key(var: str) -> str:
     return k
 
 
-def post_json(url: str, headers: dict, body: dict, log: Log, attempts: int = 8, timeout: int = 600) -> dict:
-    """POST with exponential backoff on rate limits, overload and server errors."""
+def _retry_hint(e: urllib.error.HTTPError, msg: str) -> float | None:
+    """Server-suggested wait: Retry-After header, or Gemini's RetryInfo.retryDelay ("12s")."""
+    ra = e.headers.get("Retry-After") if e.headers else None
+    if ra:
+        try:
+            return float(ra)
+        except ValueError:
+            pass
+    m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', msg)
+    return float(m.group(1)) if m else None
+
+
+def post_json(url: str, headers: dict, body: dict, log: Log, attempts: int = 8, timeout: int = 300,
+              label: str = "") -> dict:
+    """POST with exponential backoff on rate limits, overload and server errors. Retries are printed."""
     data = json.dumps(body).encode()
     delay = 5.0
     for attempt in range(attempts):
@@ -69,14 +84,19 @@ def post_json(url: str, headers: dict, body: dict, log: Log, attempts: int = 8, 
             if "PerDay" in msg or "insufficient_quota" in msg:
                 raise ProviderError(f"quota exhausted (HTTP {e.code}): {msg[:300]}")
             if e.code in (408, 409, 429, 500, 502, 503, 504, 529) and attempt < attempts - 1:
-                time.sleep(delay)
+                wait = min(max(delay, _retry_hint(e, msg) or 0), 180)
+                print(f"  [{label}] HTTP {e.code} ({'rate limited' if e.code == 429 else 'server busy'}), "
+                      f"retry {attempt + 1}/{attempts - 1} in {wait:.0f}s", file=sys.stderr, flush=True)
+                time.sleep(wait)
                 delay = min(delay * 2, 120)
                 continue
             raise ProviderError(f"HTTP {e.code}: {msg[:500]}")
-        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
             log({"event": "net_error", "attempt": attempt, "message": str(e)})
             if attempt == attempts - 1:
                 raise ProviderError(f"network error: {e}")
+            print(f"  [{label}] network error ({e}), retry {attempt + 1}/{attempts - 1} in {delay:.0f}s",
+                  file=sys.stderr, flush=True)
             time.sleep(delay)
             delay = min(delay * 2, 120)
     raise ProviderError("request kept failing")
@@ -120,7 +140,7 @@ class AnthropicProvider:
             last[-1]["cache_control"] = {"type": "ephemeral"}
         body = {"model": self.spec.id, "max_tokens": self.spec.max_tokens, "system": self.system,
                 "tools": self.tools, "messages": msgs, **self.spec.extra}
-        resp = post_json(self.url, self.headers, body, self.log)
+        resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
         content = resp.get("content", [])
         self.messages.append({"role": "assistant", "content": content})
         calls = [ToolCall(b["id"], b["name"], b.get("input") or {}) for b in content if b.get("type") == "tool_use"]
@@ -175,7 +195,7 @@ class OpenAIProvider:
                     "tools": self.tools, **self.extra}
             if self.prev_id:
                 body["previous_response_id"] = self.prev_id
-            resp = post_json(self.url, self.headers, body, self.log)
+            resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
             self.prev_id = resp.get("id")
             self.pending = []
             calls, texts, thoughts = [], [], []
@@ -192,7 +212,7 @@ class OpenAIProvider:
             return Turn(calls, "\n".join(texts).strip(), "\n".join(thoughts).strip(), usage, resp)
 
         body = {"model": self.spec.id, "messages": self.messages, "tools": self.tools, **self.extra}
-        resp = post_json(self.url, self.headers, body, self.log)
+        resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
         msg = (resp.get("choices") or [{}])[0].get("message") or {"role": "assistant", "content": ""}
         self.messages.append({k: v for k, v in msg.items() if k in ("role", "content", "tool_calls")})
         calls = []
@@ -239,7 +259,7 @@ class GeminiProvider:
                 "tools": self.tools, "generationConfig": {"thinkingConfig": {"includeThoughts": True}}}
         for k, v in self.spec.extra.items():
             body[k] = {**body[k], **v} if isinstance(v, dict) and isinstance(body.get(k), dict) else v
-        resp = post_json(self.url, self.headers, body, self.log)
+        resp = post_json(self.url, self.headers, body, self.log, label=self.spec.label)
         cand = (resp.get("candidates") or [{}])[0]
         content = cand.get("content") or {"role": "model", "parts": []}
         content.setdefault("role", "model")

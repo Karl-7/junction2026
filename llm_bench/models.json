@@ -1,12 +1,16 @@
 {
-  "_comment": "Models to compare. Edit freely: `id` is the API model name, `extra` is merged into every request body. API keys come from .env (see .env.example).",
+  "_comment": "Models to compare. `enabled` models run by default. `id` is the API model name (list the exact Gemini ids with `python -m llm_bench.gemini_models`). `rpm`/`rpd` are your API tier's per-minute / per-day request limits: requests are spaced to respect rpm, and a run warns if rpd is too low to finish. `extra` is merged into every request body. API keys come from .env.",
   "models": [
-    {"id": "claude-opus-5-5",   "label": "Claude Opus 5.5",   "provider": "anthropic", "family": "Claude", "max_tokens": 4096},
-    {"id": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5", "provider": "anthropic", "family": "Claude", "max_tokens": 4096},
-    {"id": "claude-haiku-5-5",  "label": "Claude Haiku 5.5",  "provider": "anthropic", "family": "Claude", "max_tokens": 4096},
-    {"id": "gpt-5",             "label": "GPT-5",             "provider": "openai",    "family": "GPT"},
-    {"id": "gpt-5-mini",        "label": "GPT-5 mini",        "provider": "openai",    "family": "GPT"},
-    {"id": "gemini-3.5-flash",  "label": "Gemini 3.5 Flash",  "provider": "gemini",    "family": "Gemini"},
-    {"id": "gemini-3-pro",      "label": "Gemini 3 Pro",      "provider": "gemini",    "family": "Gemini"}
+    {"id": "gemini-2.5-flash-lite",         "label": "Gemini 2.5 Flash Lite", "provider": "gemini", "family": "Gemini", "rpm": 10, "rpd": 20},
+    {"id": "gemini-2.5-flash",              "label": "Gemini 2.5 Flash",      "provider": "gemini", "family": "Gemini", "rpm": 5,  "rpd": 20},
+    {"id": "gemini-3-flash-preview",        "label": "Gemini 3 Flash",        "provider": "gemini", "family": "Gemini", "rpm": 5,  "rpd": 20},
+    {"id": "gemini-3.1-flash-lite-preview", "label": "Gemini 3.1 Flash Lite", "provider": "gemini", "family": "Gemini", "rpm": 15, "rpd": 500},
+    {"id": "gemini-3.5-flash-lite",         "label": "Gemini 3.5 Flash Lite", "provider": "gemini", "family": "Gemini", "rpm": 15, "rpd": 500},
+
+    {"id": "claude-opus-5-5",   "label": "Claude Opus 5.5",   "provider": "anthropic", "family": "Claude", "max_tokens": 4096, "enabled": false},
+    {"id": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5", "provider": "anthropic", "family": "Claude", "max_tokens": 4096, "enabled": false},
+    {"id": "claude-haiku-5-5",  "label": "Claude Haiku 5.5",  "provider": "anthropic", "family": "Claude", "max_tokens": 4096, "enabled": false},
+    {"id": "gpt-5",             "label": "GPT-5",             "provider": "openai",    "family": "GPT", "enabled": false},
+    {"id": "gpt-5-mini",        "label": "GPT-5 mini",        "provider": "openai",    "family": "GPT", "enabled": false}
   ]
 }

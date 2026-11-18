@@ -34,6 +34,10 @@ class ModelSpec:
     family: str              # Claude | GPT | Gemini
     max_tokens: int = 4096
     extra: dict = field(default_factory=dict)
+    enabled: bool = True            # run by default (python -m llm_bench.run without --models)
+    rpm: float | None = None        # requests per minute allowed by your API tier; requests are spaced to fit
+    rpd: int | None = None          # requests per day, used to warn before a run that cannot finish
+    note: str = ""
 
     @property
     def slug(self) -> str:
@@ -42,7 +46,7 @@ class ModelSpec:
 
 def load_models(path: Path = Path(__file__).with_name("models.json")) -> list[ModelSpec]:
     data = json.loads(path.read_text())
-    return [ModelSpec(**m) for m in data["models"]]
+    return [ModelSpec(**{k: v for k, v in m.items() if not k.startswith("_")}) for m in data["models"]]
 
 
 def find_model(name: str, models: list[ModelSpec] | None = None) -> ModelSpec:

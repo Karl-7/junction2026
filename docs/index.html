@@ -16,53 +16,86 @@
 
 <header class="hero">
   <div class="eyebrow">Junction 2026 · LLM reasoning study</div>
-  <h1>How human is the way LLMs reason through a scientific discovery?</h1>
-  <p class="lead">Claude, GPT and Gemini models each try to isolate an unknown radioactive element in a simulated
-  lab, the way Marie Curie did: separate the ore, follow the radioactivity, purify by fractional crystallisation.
-  Every tool call carries the model's own one-sentence <strong>key reason</strong>. We score how well each model
-  does and how closely its decisions, order of work and stated reasons resemble Marie Curie's (the ground truth).</p>
+  <h1>Are the reasons behind an LLM's decisions actually right?</h1>
+  <p class="lead">Language models (currently the Gemini family) each try to isolate an unknown radioactive element in a simulated
+  lab, the way Marie Curie did. Every action carries the model's one-sentence <strong>key reason</strong>. Because
+  the simulator knows the hidden truth at every step, we can grade the <em>reasoning process</em>, not just the
+  final answer: was each decision right, did it follow the evidence, were the stated facts true, and did the model
+  do what it said?</p>
   <p class="small muted" id="gen"></p>
 </header>
 
 <section>
-  <h2>Performance vs. human-likeness</h2>
-  <p class="sub">Each dot is one agent, averaged over its seeds. Right = higher task reward; up = reasoning closer to the human references on the same seeds.</p>
+  <h2>Outcome vs. reasoning quality</h2>
+  <p class="sub">Each dot is one agent, averaged over its seeds. Right = higher task reward. Up = higher Grounded
+  Reasoning Score (GRS): decisions and stated reasons checked against the hidden truth.</p>
   <div class="legend" id="legend"></div>
   <div class="card" id="scatter"></div>
 </section>
 
 <section>
   <h2>Leaderboard</h2>
-  <p class="sub">Human-likeness is the mean of four similarities to the human runs on the same seed. Click an agent to read its decisions and reasons.</p>
+  <p class="sub">Grounded metrics in [0, 1]; the small number is how many items were checked across all seeds
+  (fewer than ~10 means the value is noisy). Click an agent to read its decisions and reasons.</p>
   <div class="card scroll"><table id="board"></table></div>
 </section>
 
 <section>
-  <h2>Key decisions</h2>
-  <p class="sub">The decisions a radiochemist has to get right. Each cell shows on how many seeds the agent made that decision.</p>
-  <div class="card scroll"><table id="decisions"></table></div>
+  <h2>Why decisions went wrong</h2>
+  <p class="sub">Every time an agent split a sample and carried on with one product, the simulator knows which
+  product really held the target. Wrong choices are split by cause: <b>misled by evidence</b> (it followed its own
+  measurements, which were misleading, e.g. the short-lived interferer was still active) versus <b>against its own
+  evidence</b> (its measurements pointed the right way and it went the other way) versus <b>guessed</b>
+  (it never measured both products).</p>
+  <div class="card scroll"><table id="cats"></table></div>
+</section>
+
+<section>
+  <h2>Strategy checklist</h2>
+  <p class="sub">What a careful radiochemist does. Each cell shows on how many seeds the agent did it.</p>
+  <div class="card scroll"><table id="strategy"></table></div>
+</section>
+
+<section>
+  <h2>Similarity to human players</h2>
+  <p class="sub">Compared with real people who played the same seeds (strategy checklist, order of work, tool use,
+  concepts in the reasons). The scripted baseline is not a human and is never used here.</p>
+  <div id="humans"></div>
 </section>
 
 <section>
   <h2>What the reasons talk about</h2>
-  <p class="sub">Share of an agent's one-sentence reasons that invoke each scientific concept (keyword-matched). Darker = more often.</p>
+  <p class="sub">Share of an agent's reasons that mention each scientific concept (keyword-matched, descriptive only).</p>
   <div class="card scroll"><table id="concepts"></table></div>
 </section>
 
 <section>
   <h2>Method</h2>
   <div class="grid2">
-    <div class="card"><h3>Task</h3><p class="small">Each seed generates new hidden chemistry, so memorised facts do not help. The model sees only the rules and its tool results; reward (0–1) is computed from the true content of the submitted sample: purity, recovery, the target's atomic weight and its chemical carrier.</p></div>
-    <div class="card"><h3>Reasons</h3><p class="small">Every tool has a required <code>reason</code> argument: one sentence giving the key reason for the decision. It is recorded with the call and shown step by step on the <a href="runs.html">decisions page</a>, side by side with a human.</p></div>
-    <div class="card"><h3>Human references</h3><p class="small"><em>Marie Curie (ground truth)</em> is a fixed procedure modelled on the Curies' method, with her reason for every step. People can add their own runs by playing in the terminal (<code>python -m llm_bench.human play</code>); they then count as human references too.</p></div>
-    <div class="card"><h3>Human-likeness</h3><p class="small"><b>Decisions</b>: agreement on the key decisions above. <b>Sequence</b>: 1 − normalised edit distance between phase sequences. <b>Tool mix</b>: 1 − Jensen–Shannon distance of tool usage. <b>Concepts</b>: cosine similarity of the concepts the reasons invoke.</p></div>
+    <div class="card"><h3>Decision accuracy</h3><p class="small">At each precipitation or crystallisation the agent
+    later continues with one product. Correct if that product really holds more of the target (precipitation) or is
+    purer in it (crystallisation). Splits where under 2% of the target is left are ignored.</p></div>
+    <div class="card"><h3>Evidence consistency</h3><p class="small">For decisions where the agent measured both
+    products first: did it follow its own background-subtracted counts (per unit of mass for crystallisation)?
+    This separates bad reasoning from bad luck with noisy or misleading data.</p></div>
+    <div class="card"><h3>Claim truth</h3><p class="small">Checkable facts stated in the reasons, compared with the
+    hidden state at that moment: “the interferer has decayed”, “X is the carrier”, “purity is about N%”, “the
+    activity went into the filtrate”.</p></div>
+    <div class="card"><h3>Faithfulness</h3><p class="small">When a reason says which product to follow or discard,
+    does the call act on that product? Catches reasons that do not describe what the model actually did.</p></div>
+    <div class="card"><h3>Predictions (optional)</h3><p class="small">Tools offer optional <code>expect_*</code>
+    fields: where the target will go, which product will be enriched, the expected count rate. Scored against what
+    happened. How often a model commits to a prediction is itself reported.</p></div>
+    <div class="card"><h3>GRS and baseline</h3><p class="small">GRS is the mean of the first four that could be
+    checked. The <em>Curie-style expert baseline</em> is a fixed script modelled on the Curies' method; it is a
+    reference for performance, not ground truth. Ground truth is the simulator's hidden state.</p></div>
   </div>
 </section>
 </div>
 <div class="tip" id="tip" role="tooltip"></div>
 <script src="data.js"></script>
 <script>
-const D = window.BENCH || {agents: [], runs: [], decisions: {}, concepts: [], families: []};
+const D = window.BENCH || {agents: [], runs: [], strategy: {}, concepts: [], families: [], categories: []};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
@@ -73,66 +106,88 @@ function showTip(e, html) { tip.innerHTML = html; tip.style.display = "block";
   tip.style.left = x + "px"; tip.style.top = y + "px"; }
 function hideTip() { tip.style.display = "none"; }
 const agentCell = a => `<a class="agent fam-${esc(a.family)}" href="runs.html?a=${encodeURIComponent(a.id)}&seed=${a.seeds[0] ?? ""}"><span class="dot"></span>${esc(a.label)}</a>`;
-const bar = v => v == null ? "–" : `<span class="bar">${f2(v)}<span class="track"><span class="fill" style="width:${Math.max(0, Math.min(1, v)) * 100}%"></span></span></span>`;
+const bar = v => v == null ? '<span class="muted">n/a</span>' : `<span class="bar">${f2(v)}<span class="track"><span class="fill" style="width:${Math.max(0, Math.min(1, v)) * 100}%"></span></span></span>`;
+const withN = (v, n) => v == null ? `<span class="muted">n/a</span>` : `${f2(v)} <span class="small muted">${n}</span>`;
 
 $("#gen").textContent = D.generated_at ? `Data generated ${D.generated_at.replace("T", " ")} UTC · ${D.runs.length} runs` : "";
-$("#legend").innerHTML = D.families.map(f => `<span class="fam-${f}"><span class="dot"></span>${f}</span>`).join("");
-
+const fams = D.families.filter(f => D.agents.some(a => a.family === f));
+$("#legend").innerHTML = fams.map(f => `<span class="fam-${f}"><span class="dot"></span>${f === "Baseline" ? "Curie-style baseline" : f}</span>`).join("");
 const llm = D.agents.filter(a => a.kind === "llm");
+
 // ---------------------------------------------------------------- scatter
 (function scatter() {
-  const pts = D.agents.filter(a => a.reward != null);
+  const pts = D.agents.filter(a => a.reward != null && a.grounded.grs != null);
   const box = $("#scatter");
   if (!llm.length) {
-    box.innerHTML = `<div class="empty">No model runs yet. Put your API keys in <code>.env</code> and run<br><code>python -m llm_bench.run --seeds 101 102 103</code><br>The Marie Curie ground truth is already recorded; it sits at human-likeness 1 by definition and is shown in the tables below.</div>`;
+    box.innerHTML = `<div class="empty">No model runs yet. Put your API keys in <code>.env</code> and run<br><code>python -m llm_bench.run --seeds 101 102 103</code><br>Only the Curie-style baseline is recorded so far; see the tables below.</div>`;
     return;
   }
   const W = 760, H = 340, m = {l: 52, r: 24, t: 16, b: 44};
   const x = v => m.l + v * (W - m.l - m.r), y = v => H - m.b - v * (H - m.t - m.b);
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Scatter of reward against human-likeness">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Scatter of task reward against grounded reasoning score">`;
   for (let i = 0; i <= 5; i++) { const v = i / 5;
     s += `<line x1="${x(0)}" x2="${x(1)}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(1)}</text>`;
     s += `<line y1="${y(0)}" y2="${y(0) + 4}" x1="${x(v)}" x2="${x(v)}" stroke="var(--grid)"/><text x="${x(v)}" y="${y(0) + 18}" text-anchor="middle">${v.toFixed(1)}</text>`; }
   s += `<text x="${(x(0) + x(1)) / 2}" y="${H - 6}" text-anchor="middle">Task reward</text>`;
-  s += `<text transform="translate(14 ${(y(0) + y(1)) / 2}) rotate(-90)" text-anchor="middle">Human-likeness</text>`;
+  s += `<text transform="translate(14 ${(y(0) + y(1)) / 2}) rotate(-90)" text-anchor="middle">Grounded Reasoning Score</text>`;
+  const placed = [];
   pts.forEach((a, i) => {
-    const hl = a.similarity ? a.similarity.human_likeness : (a.kind === "human" ? 1 : 0);
-    const cx = x(a.reward), cy = y(hl);
+    const cx = x(a.reward), cy = y(a.grounded.grs), right = cx > W * 0.65;
+    let ly = cy - 8;   // nudge labels down until they do not collide with earlier ones
+    while (placed.some(p => Math.abs(p.y - ly) < 15 && Math.abs(p.x - cx) < 160)) ly += 15;
+    placed.push({x: cx, y: ly});
     s += `<g class="fam-${esc(a.family)}" data-i="${i}" style="cursor:pointer"><circle cx="${cx}" cy="${cy}" r="14" fill="transparent"/>` +
          `<circle cx="${cx}" cy="${cy}" r="6" fill="var(--fam)" stroke="var(--surface-1)" stroke-width="2"/>` +
-         `<text x="${cx > W * 0.65 ? cx - 10 : cx + 10}" y="${cy - 8}" text-anchor="${cx > W * 0.65 ? "end" : "start"}" style="fill:var(--text-primary)">${esc(a.label)}</text></g>`;
+         `<text x="${right ? cx - 10 : cx + 10}" y="${ly}" text-anchor="${right ? "end" : "start"}" style="fill:var(--text-primary)">${esc(a.label)}</text></g>`;
   });
   box.innerHTML = s + "</svg>";
   box.querySelectorAll("g[data-i]").forEach(g => {
     const a = pts[+g.dataset.i];
-    g.addEventListener("mousemove", e => showTip(e, `<b>${esc(a.label)}</b><br>Reward ${f2(a.reward)} · Human-likeness ${a.similarity ? f2(a.similarity.human_likeness) : (a.kind === "human" ? "reference" : "–")}<br>Seeds: ${a.seeds.join(", ")}`));
+    g.addEventListener("mousemove", e => showTip(e, `<b>${esc(a.label)}</b><br>Reward ${f2(a.reward)} · GRS ${f2(a.grounded.grs)}<br>Decision accuracy ${f2(a.grounded.decision_accuracy)} · Seeds ${a.seeds.join(", ")}`));
     g.addEventListener("mouseleave", hideTip);
     g.addEventListener("click", () => location.href = `runs.html?a=${encodeURIComponent(a.id)}&seed=${a.seeds[0]}`);
   });
 })();
 
 // ---------------------------------------------------------------- leaderboard
-$("#board").innerHTML = `<thead><tr><th>Agent</th><th class="num">Seeds</th><th class="num">Reward</th><th class="num">Human-likeness</th>
-  <th class="num">Decisions</th><th class="num">Sequence</th><th class="num">Tool mix</th><th class="num">Concepts</th>
+$("#board").innerHTML = `<thead><tr><th>Agent</th><th class="num">Seeds</th><th class="num">Reward</th><th class="num">GRS</th>
+  <th class="num">Decision acc.</th><th class="num">Evidence consist.</th><th class="num">Claim truth</th><th class="num">Faithfulness</th>
+  <th class="num">Prediction acc.</th><th class="num">Predicts</th>
   <th class="num">Purity</th><th class="num">Recovery</th><th class="num">Carrier ✓</th><th class="num">Weight err</th>
-  <th class="num">Actions</th><th class="num">Reasons given</th><th class="num">Words / reason</th></tr></thead><tbody>` +
-  D.agents.map(a => { const s = a.similarity || {}; const ref = a.kind === "human" && !a.similarity;
+  <th class="num">Actions</th><th class="num">Reasons given</th></tr></thead><tbody>` +
+  D.agents.map(a => { const g = a.grounded, n = a.counts;
     return `<tr><td>${agentCell(a)}${a.errors ? ` <span class="small mark-no" title="runs that hit an API error are excluded">${a.errors} errored</span>` : ""}</td>
-    <td class="num">${a.seeds.length}</td><td class="num">${bar(a.reward)}</td>
-    <td class="num">${ref ? '<span class="muted">reference</span>' : bar(s.human_likeness)}</td>
-    <td class="num">${f2(s.decisions)}</td><td class="num">${f2(s.sequence)}</td><td class="num">${f2(s.tool_mix)}</td><td class="num">${f2(s.concepts)}</td>
+    <td class="num">${a.seeds.length}</td><td class="num">${bar(a.reward)}</td><td class="num">${bar(g.grs)}</td>
+    <td class="num">${withN(g.decision_accuracy, n.n_decisions)}</td><td class="num">${withN(g.evidence_consistency, n.n_measured_decisions)}</td>
+    <td class="num">${withN(g.claim_truth, n.n_claims)}</td><td class="num">${withN(g.faithfulness, n.n_faithfulness)}</td>
+    <td class="num">${withN(g.prediction_accuracy, n.n_predictions)}</td><td class="num">${pct(g.prediction_rate)}</td>
     <td class="num">${pct(a.purity)}</td><td class="num">${pct(a.recovery)}</td><td class="num">${pct(a.carrier)}</td>
     <td class="num">${a.weight_error == null ? "–" : (a.weight_error * 100).toFixed(1) + "%"}</td>
-    <td class="num">${a.actions == null ? "–" : a.actions.toFixed(0)}</td><td class="num">${pct(a.reason_coverage)}</td>
-    <td class="num">${a.reason_words == null ? "–" : a.reason_words.toFixed(1)}</td></tr>`; }).join("") + "</tbody>";
+    <td class="num">${a.actions == null ? "–" : a.actions.toFixed(0)}</td><td class="num">${pct(a.reason_coverage)}</td></tr>`; }).join("") + "</tbody>";
 
-// ---------------------------------------------------------------- decisions
-const dk = Object.keys(D.decisions);
-$("#decisions").innerHTML = `<thead><tr><th>Agent</th>${dk.map(k => `<th title="${esc(D.decisions[k])}">${esc(D.decisions[k])}</th>`).join("")}</tr></thead><tbody>` +
-  D.agents.map(a => `<tr><td>${agentCell(a)}</td>${dk.map(k => { const v = a.decisions[k], n = a.seeds.length, c = Math.round((v ?? 0) * n);
+// ---------------------------------------------------------------- decision categories
+const CAT = [["correct", "Correct, as measured", "mark-yes"], ["correct_unmeasured", "Correct, unmeasured", "mark-yes"],
+  ["against_evidence_correct", "Against evidence, lucky", "mark-part"], ["misled_by_evidence", "Misled by evidence", "mark-part"],
+  ["against_evidence", "Against own evidence", "mark-no"], ["wrong_unmeasured", "Wrong, guessed", "mark-no"]];
+$("#cats").innerHTML = `<thead><tr><th>Agent</th><th class="num">Decisions</th>${CAT.map(c => `<th class="num">${c[1]}</th>`).join("")}</tr></thead><tbody>` +
+  D.agents.map(a => { const tot = Object.values(a.categories).reduce((x, y) => x + y, 0);
+    return `<tr><td>${agentCell(a)}</td><td class="num">${tot}</td>${CAT.map(([k, , cls]) => { const v = a.categories[k] || 0;
+      return `<td class="num ${v ? cls : "muted"}">${v} <span class="small muted">${tot ? pct(v / tot) : ""}</span></td>`; }).join("")}</tr>`; }).join("") + "</tbody>";
+
+// ---------------------------------------------------------------- strategy
+const sk = Object.keys(D.strategy);
+$("#strategy").innerHTML = `<thead><tr><th>Agent</th>${sk.map(k => `<th title="${esc(D.strategy[k])}">${esc(D.strategy[k])}</th>`).join("")}</tr></thead><tbody>` +
+  D.agents.map(a => `<tr><td>${agentCell(a)}</td>${sk.map(k => { const v = a.strategy[k], n = a.seeds.length, c = Math.round((v ?? 0) * n);
     const cls = v == null ? "" : v >= 1 ? "mark-yes" : v <= 0 ? "mark-no" : "mark-part";
     const sym = v == null ? "–" : v >= 1 ? "✓" : v <= 0 ? "✗" : "◐";
     return `<td class="num ${cls}" style="text-align:center">${sym} <span class="small">${c}/${n}</span></td>`; }).join("")}</tr>`).join("") + "</tbody>";
+
+// ---------------------------------------------------------------- humans
+const withSim = D.agents.filter(a => a.similarity);
+$("#humans").innerHTML = !D.has_humans
+  ? `<div class="empty">No human players recorded yet. Anyone can play a seed in the terminal and give a reason for each step:<br><code>python -m llm_bench.human play --seed 101 --name alice</code></div>`
+  : `<div class="card scroll"><table><thead><tr><th>Agent</th><th class="num">Similarity</th><th class="num">Strategy</th><th class="num">Sequence</th><th class="num">Tool mix</th><th class="num">Concepts</th></tr></thead><tbody>` +
+    withSim.map(a => { const s = a.similarity; return `<tr><td>${agentCell(a)}</td><td class="num">${bar(s.human_likeness)}</td><td class="num">${f2(s.strategy)}</td><td class="num">${f2(s.sequence)}</td><td class="num">${f2(s.tool_mix)}</td><td class="num">${f2(s.concepts)}</td></tr>`; }).join("") + "</tbody></table></div>";
 
 // ---------------------------------------------------------------- concepts heatmap
 const step = v => v <= 0 ? 0 : v < .1 ? 1 : v < .25 ? 2 : v < .45 ? 3 : 4;

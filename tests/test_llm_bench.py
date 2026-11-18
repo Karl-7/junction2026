@@ -94,17 +94,17 @@ def test_bad_tool_and_bad_args_do_not_crash(tmp_path):
     assert "error" in p.results[0][1] and "error" in p.results[1][1]
 
 
-def test_protocol_is_fully_human_like_against_itself_and_differs_from_shortcut():
+def test_similarity_identity_and_shortcut():
     a, b = protocol_run(101), protocol_run(101)
     b["agent"] = {**b["agent"], "id": "copy"}
     assert metrics.similarity(a, b)["human_likeness"] > 0.999
-    assert all(metrics.decisions(a).values())
+    assert all(metrics.strategy(a).values())
     lab = Lab(101)
     lab.call("submit", sample_id="ore", atomic_weight=200.0, carrier="Qa", reason="guess")
     short = agent.build_record(lab, {"id": "s", "label": "s", "family": "GPT", "provider": "x", "kind": "llm"})
     sim = metrics.similarity(short, a)
     assert sim["human_likeness"] < 0.4
-    assert not metrics.decisions(short)["recycled_mother_liquor"]
+    assert not metrics.strategy(short)["recycled_mother_liquor"]
 
 
 def test_phases_cover_steps_and_detect_recycling():
@@ -119,13 +119,17 @@ def test_site_data(tmp_path):
     for s in (101, 102):
         agent.save_record(protocol_run(s), runs)
         ref = protocol_run(s)
-        llm = {**ref, "agent": {"id": "m", "label": "M", "family": "Claude", "provider": "anthropic", "kind": "llm"},
+        llm = {**ref, "agent": {"id": "m", "label": "M", "family": "Gemini", "provider": "gemini", "kind": "llm"},
                "steps": ref["steps"][:40] + ref["steps"][-1:]}
         agent.save_record(llm, runs)
+        human = {**ref, "agent": {"id": "human-a", "label": "A", "family": "Human", "provider": "human", "kind": "human"}}
+        agent.save_record(human, runs)
     d = site.collect(runs)
     ids = {a["id"]: a for a in d["agents"]}
+    assert d["has_humans"]
     assert ids["m"]["similarity"]["human_likeness"] < 1
-    assert ids["human-expert-protocol"]["similarity"] is None
+    assert ids["human-a"]["similarity"] is None            # no other human to compare with
+    assert ids["curie-style-baseline"]["grounded"]["grs"] == 1.0
     assert all("phase" in s and "reason" in s for r in d["runs"] for s in r["steps"])
     out = site.build(runs, tmp_path / "docs")
     assert json.loads(out.read_text()[len("window.BENCH = "):-2])["runs"]
@@ -133,7 +137,8 @@ def test_site_data(tmp_path):
 
 def test_model_registry():
     ms = load_models()
-    assert {m.family for m in ms} == {"Claude", "GPT", "Gemini"}
+    assert {m.family for m in ms} >= {"Claude", "GPT", "Gemini"}
+    assert all(m.family == "Gemini" for m in ms if m.enabled)
     assert find_model("claude-opus-5-5").provider == "anthropic"
     assert find_model("gpt-9-turbo").provider == "openai"
     assert find_model("gemini-9").family == "Gemini"
