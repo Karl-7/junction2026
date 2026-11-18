@@ -1,12 +1,14 @@
 """Human baselines.
 
-1. Expert protocol (scripted, with a human expert's reason for each decision):
+1. Curie-style expert baseline (a fixed script modelled on the Curies' method, with an expert's
+   reason for each decision; a performance baseline, not ground truth):
        python -m llm_bench.human protocol --seeds 101 102 103
 
 2. Play yourself in the terminal; every call asks for your one-sentence reason:
        python -m llm_bench.human play --seed 101 --name alice
    Commands look like tool calls:  precipitate sample_id=ore reagent=reagent_A
    `help` lists tools, `samples` = list_samples, `quit` ends without submitting.
+   Optional predictions are scored too, e.g.  precipitate sample_id=ore reagent=reagent_A expect_target_in=filtrate
 """
 from __future__ import annotations
 
@@ -19,12 +21,12 @@ from hidden_element.rules import rules_text
 from policies import reference
 
 from .agent import _now, build_record, save_record
-from .tools import TOOLS
+from .tools import PREDICTION_FIELDS, TOOLS
 
-PROTOCOL_AGENT = {"id": "human-expert-protocol", "label": "Human expert protocol", "family": "Human",
-                  "provider": "script", "kind": "human"}
+PROTOCOL_AGENT = {"id": "curie-style-baseline", "label": "Curie-style expert baseline", "family": "Baseline",
+                  "provider": "script", "kind": "baseline"}
 LIST_ARGS = {"sample_ids"}
-FLOAT_ARGS = {"fraction", "hours", "minutes", "atomic_weight"}
+FLOAT_ARGS = {"fraction", "hours", "minutes", "atomic_weight", "expect_net_cpm"}
 
 
 def protocol(seeds, config="default-v1"):
@@ -78,7 +80,10 @@ def play(seed: int, name: str, config="default-v1"):
         reason = ""
         while not reason:
             reason = input("  key reason (one sentence)> ").strip()
+        prediction = {k: kw.pop(k) for k in list(kw) if k in PREDICTION_FIELDS}
         print(json.dumps(lab.call(tool, reason=reason, **kw), indent=1))
+        if prediction and lab.log:
+            lab.log[-1]["prediction"] = prediction
     agent = {"id": f"human-{name}", "label": f"Human ({name})", "family": "Human", "provider": "human", "kind": "human"}
     rec = build_record(lab, agent, status="submitted" if lab.result and "submitted" in lab.result else "quit",
                        started_at=started, finished_at=_now(), missing_reasons=0)

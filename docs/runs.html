@@ -16,7 +16,8 @@
 <header class="hero">
   <h1>Every decision, with its key reason</h1>
   <p class="lead">Pick a seed and two agents to read their runs side by side. Each step shows the tool call, the
-  one-sentence reason the agent gave for it, and the lab's response. The coloured edge marks the phase of work.</p>
+  one-sentence reason the agent gave for it, any prediction it made, and the lab's response. Checks against the
+  hidden truth appear under the reason: ✓ right, ✗ wrong. The coloured edge marks the phase of work.</p>
 </header>
 
 <div class="controls">
@@ -25,6 +26,7 @@
   <label>Right <select id="b"></select></label>
   <label>Phase <select id="phase"><option value="">All phases</option></select></label>
   <label>Tools <select id="free"><option value="1">Hide free tools</option><option value="0">Show all</option></select></label>
+  <label>Steps <select id="only"><option value="">All steps</option><option value="checked">Only checked steps</option><option value="wrong">Only failed checks</option></select></label>
 </div>
 <div class="legend" id="phlegend"></div>
 <div class="cols"><div class="col" id="colA"></div><div class="col" id="colB"></div></div>
@@ -43,6 +45,7 @@ $("#phlegend").innerHTML = D.phases.map(p => `<span class="ph-${p}"><span class=
 $("#phase").innerHTML += D.phases.map(p => `<option value="${p}">${PH_LABEL[p] || p}</option>`).join("");
 $("#seed").innerHTML = seeds.map(s => `<option>${s}</option>`).join("");
 
+const KIND = {decision: "Decision", claim: "Claim", faithful: "Faithfulness", prediction: "Prediction"};
 function agentsFor(seed) { return D.runs.filter(r => r.seed === +seed); }
 function fillAgents() {
   const rs = agentsFor($("#seed").value);
@@ -50,8 +53,8 @@ function fillAgents() {
   const keepA = $("#a").value || q.get("a"), keepB = $("#b").value || q.get("b");
   $("#a").innerHTML = opts; $("#b").innerHTML = opts;
   const ids = rs.map(r => r.agent.id);
-  const human = rs.find(r => r.agent.kind === "human");
-  const firstLlm = rs.find(r => r.agent.kind !== "human");
+  const human = rs.find(r => r.agent.kind === "baseline") || rs.find(r => r.agent.kind === "human");
+  const firstLlm = rs.find(r => r.agent.kind === "llm") || rs.find(r => r !== human);
   $("#a").value = ids.includes(keepA) ? keepA : (firstLlm || rs[0] || {agent: {}}).agent.id;
   $("#b").value = ids.includes(keepB) ? keepB : (human || rs[1] || rs[0] || {agent: {}}).agent.id;
 }
@@ -64,13 +67,19 @@ function brief(res) {
 }
 function col(el, run) {
   if (!run) { el.innerHTML = `<div class="empty">No run.</div>`; return; }
-  const m = run.metrics, s = m.similarity, hideFree = $("#free").value === "1", ph = $("#phase").value;
-  const steps = run.steps.filter(st => (!hideFree || !["rules", "list_samples"].includes(st.tool)) && (!ph || st.phase === ph));
+  const m = run.metrics, hideFree = $("#free").value === "1", ph = $("#phase").value;
+  const only = $("#only").value;
+  const steps = run.steps.filter(st => (!hideFree || !["rules", "list_samples"].includes(st.tool)) && (!ph || st.phase === ph)
+    && (!only || (only === "checked" ? (st.checks || []).length : (st.checks || []).some(c => !c.ok))));
+  const g = m.grounded;
   el.innerHTML = `<div class="card"><h3 class="fam-${esc(run.agent.family)}"><span class="dot"></span>${esc(run.agent.label)}</h3>
     <div class="small muted">seed ${run.seed} · ${esc(run.status || "")} · ${m.actions} actions${run.usage ? ` · ${run.usage.requests} requests, ${(run.usage.input_tokens + run.usage.output_tokens).toLocaleString()} tokens` : ""}</div>
     <div class="stats">
       <div><small>Reward</small><b>${m.reward.toFixed(3)}</b></div>
-      <div><small>Human-likeness</small><b>${s ? s.human_likeness.toFixed(2) : (run.agent.kind === "human" ? "ref." : "–")}</b></div>
+      <div><small>Grounded Reasoning Score</small><b>${g.grs == null ? "n/a" : g.grs.toFixed(2)}</b></div>
+      <div><small>Decision accuracy</small><b>${g.decision_accuracy == null ? "n/a" : pct(g.decision_accuracy)} <span class="small muted">${g.n_decisions}</span></b></div>
+      <div><small>Evidence consistency</small><b>${g.evidence_consistency == null ? "n/a" : pct(g.evidence_consistency)}</b></div>
+      <div><small>Claim truth</small><b>${g.claim_truth == null ? "n/a" : pct(g.claim_truth)} <span class="small muted">${g.n_claims}</span></b></div>
       <div><small>Reasons given</small><b>${pct(m.reasons.coverage)}</b></div>
       <div><small>Purity</small><b>${pct(m.purity)}</b></div>
       <div><small>Recovery</small><b>${pct(m.recovery)}</b></div>
@@ -82,6 +91,8 @@ function col(el, run) {
   <ol class="steps">${steps.map(st => `<li class="ph-${st.phase} ${"error" in st.result ? "err" : ""}">
     <div class="step-head"><span class="n">#${st.i}</span><code>${esc(st.tool)}(${esc(args(st.args))})</code><span class="chip">${PH_LABEL[st.phase] || st.phase}</span></div>
     <div class="reason ${st.reason ? "" : "none"}">${st.reason ? esc(st.reason) : "no reason given"}</div>
+    ${st.prediction ? `<div class="pred">Prediction: ${esc(Object.entries(st.prediction).map(([k, v]) => k.replace("expect_", "") + " = " + v).join(", "))}</div>` : ""}
+    ${(st.checks || []).length ? `<div class="checks">${st.checks.map(c => `<span class="check ${c.ok ? "ok" : "bad"}"><b>${c.ok ? "✓" : "✗"} ${KIND[c.kind] || c.kind}</b>${esc(c.note)}</span>`).join("")}</div>` : ""}
     <details><summary>${"error" in st.result ? "error: " + esc(st.result.error) : "result"}</summary><pre>${esc(brief(st.result))}</pre></details>
   </li>`).join("")}</ol>
   ${steps.length ? "" : `<div class="empty">No steps in this phase.</div>`}`;
@@ -98,7 +109,7 @@ else {
   $("#seed").value = seeds.includes(+q.get("seed")) ? q.get("seed") : seeds[0];
   fillAgents(); render();
   $("#seed").onchange = () => { fillAgents(); render(); };
-  ["#a", "#b", "#phase", "#free"].forEach(s => $(s).onchange = render);
+  ["#a", "#b", "#phase", "#free", "#only"].forEach(s => $(s).onchange = render);
 }
 </script>
 </body>

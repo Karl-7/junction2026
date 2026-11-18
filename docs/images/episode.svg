@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" width="960" height="250" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
   <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6f6e69"/></marker></defs>
   <rect width="960" height="250" rx="16" fill="#fcfcfb"/>
-  <text x="32" y="40" font-size="20" font-weight="700" fill="#0b0b0b">What a good (human-like) run looks like</text>
+  <text x="32" y="40" font-size="20" font-weight="700" fill="#0b0b0b">The Curie-style expert approach (baseline)</text>
   <g font-size="13">
     <rect x="32" y="64" width="168" height="150" rx="10" fill="#ffffff" stroke="#6250d6" stroke-width="2"/>
     <text x="48" y="90" font-size="15" font-weight="700" fill="#0b0b0b">1 · Wait</text>

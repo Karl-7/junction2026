@@ -1,16 +1,13 @@
-"""How well did a run do, and how human-like was the way it got there?
+"""Per-run metrics.
 
-Human-likeness is measured against the human runs on the same seed (the expert protocol, plus any
-recorded human players), on four axes, each in [0, 1]:
-
-  decisions   agreement on the key decisions a radiochemist has to make (waiting out the
-              interferer, comparing both products, fractional crystallisation, recycling mother
-              liquors, checking the spectrum, using the budget, submitting)
-  sequence    similarity of the order of work: phase sequence, 1 - normalised edit distance
-  tool mix    1 - Jensen-Shannon distance between the distributions of lab tools used
-  concepts    cosine similarity of which scientific concepts the one-sentence reasons invoke
-
-human_likeness is their mean.
+Primary (llm_bench/grounded.py): the grounded reasoning metrics, checked against the hidden state.
+Secondary (here):
+  strategy      a checklist of what a careful radiochemist does (waiting out the interferer,
+                comparing both products, fractional crystallisation, recycling mother liquors, ...)
+  concepts      which scientific concepts the one-sentence reasons invoke (descriptive)
+  similarity    to *real human players* on the same seed, when any exist: agreement on the strategy
+                checklist, phase-sequence similarity, tool-mix similarity, concept similarity.
+                The scripted Curie-style baseline is not a human and is never used as reference.
 """
 from __future__ import annotations
 
@@ -22,7 +19,7 @@ PHASES = ["orient", "decay", "separation", "crystallisation", "recycling", "anal
 LAB_TOOLS = ["dissolve", "precipitate", "crystallize", "combine", "wait", "measure_activity",
              "weigh", "spectrum", "atomic_weight", "submit"]
 
-DECISIONS = {
+STRATEGY = {
     "waited_out_interferer": "Waited ≥ 60 h (several interferer half-lives) before crystallising",
     "compared_both_products": "Measured both products of most separations",
     "fractional_crystallisation": "Used repeated fractional crystallisation (≥ 3 rounds)",
@@ -90,7 +87,7 @@ def label_phases(run: dict) -> list:
     return out
 
 
-def decisions(run: dict) -> dict:
+def strategy(run: dict) -> dict:
     steps = ok_steps(run)
     res = run.get("result") or {}
     cfg_goal = 0.9
@@ -197,9 +194,9 @@ def _cos(p: dict, q: dict) -> float:
 
 
 def similarity(run: dict, human: dict) -> dict:
-    da, db = decisions(run), decisions(human)
+    da, db = strategy(run), strategy(human)
     s = {
-        "decisions": sum(da[k] == db[k] for k in DECISIONS) / len(DECISIONS),
+        "strategy": sum(da[k] == db[k] for k in STRATEGY) / len(STRATEGY),
         "sequence": _edit_sim(phase_sequence(run), phase_sequence(human)),
         "tool_mix": _js_sim(tool_mix(run), tool_mix(human)),
         "concepts": _cos(concept_profile(run), concept_profile(human)),
@@ -209,10 +206,12 @@ def similarity(run: dict, human: dict) -> dict:
 
 
 def summarize(run: dict, humans: list) -> dict:
-    """Per-run metrics. `humans` are the human runs to compare with (same seed preferred)."""
+    """Per-run metrics. `humans` are real human runs to compare with (same seed preferred)."""
+    from .grounded import evaluate
     res = run.get("result") or {}
     truth_w = run["truth"]["target_atomic_weight"]
     sub = res.get("submitted") or {}
+    g = evaluate(run)
     out = {
         "reward": res.get("reward", 0.0),
         "purity": res.get("purity", 0.0),
@@ -220,7 +219,9 @@ def summarize(run: dict, humans: list) -> dict:
         "carrier_correct": bool(res.get("carrier_credit")),
         "weight_error": abs(sub["atomic_weight"] - truth_w) / truth_w if sub.get("atomic_weight") is not None else None,
         "actions": run.get("actions", 0),
-        "decisions": decisions(run),
+        "grounded": g["metrics"],
+        "checks": g["checks"],
+        "strategy": strategy(run),
         "concepts": concept_profile(run),
         "phases": label_phases(run),
         "reasons": reason_stats(run),

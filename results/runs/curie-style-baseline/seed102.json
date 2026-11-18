@@ -1,12 +1,12 @@
 {
  "agent": {
-  "id": "human-expert-protocol",
-  "label": "Human expert protocol",
-  "family": "Human",
+  "id": "curie-style-baseline",
+  "label": "Curie-style expert baseline",
+  "family": "Baseline",
   "provider": "script",
-  "kind": "human"
+  "kind": "baseline"
  },
- "seed": 103,
+ "seed": 102,
  "config": "default-v1",
  "steps": [
   {
@@ -18,73 +18,73 @@
     "known_elements": [
      {
       "symbol": "Ja",
-      "atomic_weight": 197.22,
+      "atomic_weight": 50.86,
       "spectral_lines_nm": [
-       601.8,
-       642.7
+       422.3,
+       660.3
       ],
-      "line_sensitivity": 0.916,
-      "ore_mass_fraction": 0.0055,
+      "line_sensitivity": 0.922,
+      "ore_mass_fraction": 0.3479,
+      "specific_activity_cpm_per_g": 20.0,
+      "half_life": "very long"
+     },
+     {
+      "symbol": "Jo",
+      "atomic_weight": 177.38,
+      "spectral_lines_nm": [
+       511.8,
+       667.0
+      ],
+      "line_sensitivity": 1.612,
+      "ore_mass_fraction": 0.0063,
       "specific_activity_cpm_per_g": 0.0,
       "half_life": "stable"
      },
      {
-      "symbol": "Ju",
-      "atomic_weight": 26.68,
+      "symbol": "Qa",
+      "atomic_weight": 95.54,
       "spectral_lines_nm": [
-       448.7,
-       503.6
+       392.3,
+       409.5
       ],
-      "line_sensitivity": 1.133,
-      "ore_mass_fraction": 0.4847,
+      "line_sensitivity": 1.913,
+      "ore_mass_fraction": 0.0097,
       "specific_activity_cpm_per_g": 0.0,
       "half_life": "stable"
      },
      {
       "symbol": "Qe",
-      "atomic_weight": 146.93,
+      "atomic_weight": 31.87,
       "spectral_lines_nm": [
-       598.0,
-       633.7
+       521.8,
+       679.3
       ],
-      "line_sensitivity": 1.909,
-      "ore_mass_fraction": 0.0056,
+      "line_sensitivity": 0.965,
+      "ore_mass_fraction": 0.0053,
       "specific_activity_cpm_per_g": 0.0,
       "half_life": "stable"
      },
      {
       "symbol": "Qo",
-      "atomic_weight": 46.62,
+      "atomic_weight": 159.38,
       "spectral_lines_nm": [
-       381.0,
-       540.1
+       606.8,
+       682.5
       ],
-      "line_sensitivity": 0.509,
-      "ore_mass_fraction": 0.1783,
+      "line_sensitivity": 1.607,
+      "ore_mass_fraction": 0.274,
       "specific_activity_cpm_per_g": 0.0,
       "half_life": "stable"
      },
      {
       "symbol": "Qu",
-      "atomic_weight": 133.26,
+      "atomic_weight": 86.9,
       "spectral_lines_nm": [
-       522.5,
-       533.4
+       425.8,
+       612.5
       ],
-      "line_sensitivity": 1.067,
-      "ore_mass_fraction": 0.3161,
-      "specific_activity_cpm_per_g": 20.0,
-      "half_life": "very long"
-     },
-     {
-      "symbol": "Qy",
-      "atomic_weight": 75.4,
-      "spectral_lines_nm": [
-       440.8,
-       625.8
-      ],
-      "line_sensitivity": 1.465,
-      "ore_mass_fraction": 0.0095,
+      "line_sensitivity": 1.127,
+      "ore_mass_fraction": 0.3565,
       "specific_activity_cpm_per_g": 0.0,
       "half_life": "stable"
      }
@@ -154,9 +154,9 @@
    "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S1",
-    "counts": 12176,
+    "counts": 14087,
     "minutes": 2.0,
-    "gross_cpm": 6088.0,
+    "gross_cpm": 7043.5,
     "actions_left": 96,
     "time_h": 241.63
    }
@@ -171,9 +171,9 @@
    "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
    "result": {
     "sample_id": "S2",
-    "counts": 23497,
+    "counts": 21938,
     "minutes": 2.0,
-    "gross_cpm": 11748.5,
+    "gross_cpm": 10969.0,
     "actions_left": 95,
     "time_h": 241.77
    }
@@ -203,9 +203,9 @@
    "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S3",
-    "counts": 1581,
+    "counts": 21452,
     "minutes": 2.0,
-    "gross_cpm": 790.5,
+    "gross_cpm": 10726.0,
     "actions_left": 93,
     "time_h": 242.9
    }
@@ -220,30 +220,44 @@
    "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
    "result": {
     "sample_id": "S4",
-    "counts": 22769,
+    "counts": 765,
     "minutes": 2.0,
-    "gross_cpm": 11384.5,
+    "gross_cpm": 382.5,
     "actions_left": 92,
     "time_h": 243.03
    }
   },
   {
    "i": 9,
+   "tool": "dissolve",
+   "args": {
+    "sample_id": "S3"
+   },
+   "reason": "The activity followed the precipitate, so dissolve it to continue separating.",
+   "result": {
+    "sample_id": "S3",
+    "state": "solution",
+    "actions_left": 91,
+    "time_h": 243.53
+   }
+  },
+  {
+   "i": 10,
    "tool": "precipitate",
    "args": {
-    "sample_id": "S4",
+    "sample_id": "S3",
     "reagent": "reagent_C"
    },
    "reason": "Split the active fraction with reagent_C to learn which side the target goes to.",
    "result": {
     "precipitate": "S5",
     "filtrate": "S6",
-    "actions_left": 91,
-    "time_h": 244.03
+    "actions_left": 90,
+    "time_h": 244.53
    }
   },
   {
-   "i": 10,
+   "i": 11,
    "tool": "measure_activity",
    "args": {
     "sample_id": "S5",
@@ -252,15 +266,15 @@
    "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S5",
-    "counts": 21824,
+    "counts": 521,
     "minutes": 2.0,
-    "gross_cpm": 10912.0,
-    "actions_left": 90,
-    "time_h": 244.17
+    "gross_cpm": 260.5,
+    "actions_left": 89,
+    "time_h": 244.67
    }
   },
   {
-   "i": 11,
+   "i": 12,
    "tool": "measure_activity",
    "args": {
     "sample_id": "S6",
@@ -269,23 +283,9 @@
    "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
    "result": {
     "sample_id": "S6",
-    "counts": 179,
+    "counts": 20749,
     "minutes": 2.0,
-    "gross_cpm": 89.5,
-    "actions_left": 89,
-    "time_h": 244.3
-   }
-  },
-  {
-   "i": 12,
-   "tool": "dissolve",
-   "args": {
-    "sample_id": "S5"
-   },
-   "reason": "The activity followed the precipitate, so dissolve it to continue separating.",
-   "result": {
-    "sample_id": "S5",
-    "state": "solution",
+    "gross_cpm": 10374.5,
     "actions_left": 88,
     "time_h": 244.8
    }
@@ -294,7 +294,7 @@
    "i": 13,
    "tool": "precipitate",
    "args": {
-    "sample_id": "S5",
+    "sample_id": "S6",
     "reagent": "reagent_D"
    },
    "reason": "Split the active fraction with reagent_D to learn which side the target goes to.",
@@ -315,9 +315,9 @@
    "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S7",
-    "counts": 799,
+    "counts": 532,
     "minutes": 2.0,
-    "gross_cpm": 399.5,
+    "gross_cpm": 266.0,
     "actions_left": 86,
     "time_h": 245.93
    }
@@ -332,9 +332,9 @@
    "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
    "result": {
     "sample_id": "S8",
-    "counts": 20777,
+    "counts": 20098,
     "minutes": 2.0,
-    "gross_cpm": 10388.5,
+    "gross_cpm": 10049.0,
     "actions_left": 85,
     "time_h": 246.07
    }
@@ -364,9 +364,9 @@
    "reason": "Count the precipitate, minus background, to see whether the target's activity went with it.",
    "result": {
     "sample_id": "S9",
-    "counts": 164,
+    "counts": 434,
     "minutes": 2.0,
-    "gross_cpm": 82.0,
+    "gross_cpm": 217.0,
     "actions_left": 83,
     "time_h": 247.2
    }
@@ -381,9 +381,9 @@
    "reason": "Count the filtrate too, because only the comparison shows where the activity went.",
    "result": {
     "sample_id": "S10",
-    "counts": 19392,
+    "counts": 19468,
     "minutes": 2.0,
-    "gross_cpm": 9696.0,
+    "gross_cpm": 9734.0,
     "actions_left": 82,
     "time_h": 247.33
    }
@@ -399,28 +399,52 @@
     "sample_id": "S10",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0219
+      "nm": 422.3,
+      "intensity": 0.0251
      },
      {
-      "nm": 426.2,
-      "intensity": 0.0538
+      "nm": 425.8,
+      "intensity": 0.0042
      },
      {
-      "nm": 440.8,
-      "intensity": 1.4434
+      "nm": 474.9,
+      "intensity": 0.0915
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0223
+      "nm": 511.8,
+      "intensity": 0.0024
      },
      {
-      "nm": 625.8,
-      "intensity": 1.3596
+      "nm": 521.8,
+      "intensity": 0.9092
      },
      {
-      "nm": 631.3,
-      "intensity": 0.0614
+      "nm": 574.8,
+      "intensity": 0.0905
+     },
+     {
+      "nm": 606.8,
+      "intensity": 0.0138
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.004
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.025
+     },
+     {
+      "nm": 667.0,
+      "intensity": 0.0025
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.8924
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0145
      }
     ],
     "actions_left": 81,
@@ -440,19 +464,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -501,9 +525,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S11",
-    "counts": 16853,
+    "counts": 15462,
     "minutes": 2.0,
-    "gross_cpm": 8426.5,
+    "gross_cpm": 7731.0,
     "actions_left": 79,
     "time_h": 251.97
    }
@@ -518,9 +542,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S12",
-    "counts": 3252,
+    "counts": 4351,
     "minutes": 2.0,
-    "gross_cpm": 1626.0,
+    "gross_cpm": 2175.5,
     "actions_left": 78,
     "time_h": 252.1
    }
@@ -595,28 +619,52 @@
     "sample_id": "S15",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0187
+      "nm": 422.3,
+      "intensity": 0.025
      },
      {
-      "nm": 426.2,
-      "intensity": 0.0849
+      "nm": 425.8,
+      "intensity": 0.0041
      },
      {
-      "nm": 440.8,
-      "intensity": 1.2418
+      "nm": 474.9,
+      "intensity": 0.1403
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0173
+      "nm": 511.8,
+      "intensity": 0.0023
      },
      {
-      "nm": 625.8,
-      "intensity": 1.5309
+      "nm": 521.8,
+      "intensity": 0.8872
      },
      {
-      "nm": 631.3,
-      "intensity": 0.0858
+      "nm": 574.8,
+      "intensity": 0.1446
+     },
+     {
+      "nm": 606.8,
+      "intensity": 0.0122
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0042
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.025
+     },
+     {
+      "nm": 667.0,
+      "intensity": 0.0024
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.8483
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0121
      }
     ],
     "actions_left": 73,
@@ -632,7 +680,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S15",
-    "apparent_atomic_weight": 81.99,
+    "apparent_atomic_weight": 48.93,
     "actions_left": 72,
     "time_h": 258.85
    }
@@ -650,19 +698,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -716,9 +764,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S16",
-    "counts": 15927,
+    "counts": 13601,
     "minutes": 2.0,
-    "gross_cpm": 7963.5,
+    "gross_cpm": 6800.5,
     "actions_left": 70,
     "time_h": 262.98
    }
@@ -733,9 +781,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S17",
-    "counts": 3213,
+    "counts": 4346,
     "minutes": 2.0,
-    "gross_cpm": 1606.5,
+    "gross_cpm": 2173.0,
     "actions_left": 69,
     "time_h": 263.12
    }
@@ -810,28 +858,52 @@
     "sample_id": "S20",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0155
+      "nm": 422.3,
+      "intensity": 0.0228
      },
      {
-      "nm": 426.2,
-      "intensity": 0.1336
+      "nm": 425.8,
+      "intensity": 0.0048
      },
      {
-      "nm": 440.8,
-      "intensity": 1.2539
+      "nm": 474.9,
+      "intensity": 0.2168
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0153
+      "nm": 511.8,
+      "intensity": 0.0023
      },
      {
-      "nm": 625.8,
-      "intensity": 1.3851
+      "nm": 521.8,
+      "intensity": 0.8071
      },
      {
-      "nm": 631.3,
-      "intensity": 0.1143
+      "nm": 574.8,
+      "intensity": 0.2315
+     },
+     {
+      "nm": 606.8,
+      "intensity": 0.0106
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0048
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0248
+     },
+     {
+      "nm": 667.0,
+      "intensity": 0.0025
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.7802
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0104
      }
     ],
     "actions_left": 64,
@@ -847,7 +919,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S20",
-    "apparent_atomic_weight": 87.1,
+    "apparent_atomic_weight": 55.81,
     "actions_left": 63,
     "time_h": 269.87
    }
@@ -865,19 +937,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -936,9 +1008,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S21",
-    "counts": 15120,
+    "counts": 13262,
     "minutes": 2.0,
-    "gross_cpm": 7560.0,
+    "gross_cpm": 6631.0,
     "actions_left": 61,
     "time_h": 274.0
    }
@@ -953,9 +1025,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S22",
-    "counts": 3347,
+    "counts": 4337,
     "minutes": 2.0,
-    "gross_cpm": 1673.5,
+    "gross_cpm": 2168.5,
     "actions_left": 60,
     "time_h": 274.13
    }
@@ -1030,28 +1102,52 @@
     "sample_id": "S25",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0133
+      "nm": 422.3,
+      "intensity": 0.0229
      },
      {
-      "nm": 426.2,
-      "intensity": 0.2028
+      "nm": 425.8,
+      "intensity": 0.0044
      },
      {
-      "nm": 440.8,
-      "intensity": 1.2304
+      "nm": 474.9,
+      "intensity": 0.343
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0139
+      "nm": 511.8,
+      "intensity": 0.0019
      },
      {
-      "nm": 625.8,
-      "intensity": 1.2386
+      "nm": 521.8,
+      "intensity": 0.7391
      },
      {
-      "nm": 631.3,
-      "intensity": 0.1936
+      "nm": 574.8,
+      "intensity": 0.3116
+     },
+     {
+      "nm": 606.8,
+      "intensity": 0.0083
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0051
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0218
+     },
+     {
+      "nm": 667.0,
+      "intensity": 0.002
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.7546
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0088
      }
     ],
     "actions_left": 55,
@@ -1067,7 +1163,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S25",
-    "apparent_atomic_weight": 93.76,
+    "apparent_atomic_weight": 66.57,
     "actions_left": 54,
     "time_h": 280.88
    }
@@ -1085,19 +1181,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -1161,9 +1257,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S26",
-    "counts": 13765,
+    "counts": 11623,
     "minutes": 2.0,
-    "gross_cpm": 6882.5,
+    "gross_cpm": 5811.5,
     "actions_left": 52,
     "time_h": 285.02
    }
@@ -1178,9 +1274,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S27",
-    "counts": 3141,
+    "counts": 4209,
     "minutes": 2.0,
-    "gross_cpm": 1570.5,
+    "gross_cpm": 2104.5,
     "actions_left": 51,
     "time_h": 285.15
    }
@@ -1255,28 +1351,52 @@
     "sample_id": "S30",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0111
+      "nm": 422.3,
+      "intensity": 0.0209
      },
      {
-      "nm": 426.2,
-      "intensity": 0.3224
+      "nm": 425.8,
+      "intensity": 0.0051
      },
      {
-      "nm": 440.8,
-      "intensity": 1.2807
+      "nm": 474.9,
+      "intensity": 0.4791
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0112
+      "nm": 511.8,
+      "intensity": 0.002
      },
      {
-      "nm": 625.8,
-      "intensity": 1.1647
+      "nm": 521.8,
+      "intensity": 0.6659
      },
      {
-      "nm": 631.3,
-      "intensity": 0.302
+      "nm": 574.8,
+      "intensity": 0.4544
+     },
+     {
+      "nm": 606.8,
+      "intensity": 0.0065
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0047
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0196
+     },
+     {
+      "nm": 667.0,
+      "intensity": 0.0018
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.6836
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0062
      }
     ],
     "actions_left": 46,
@@ -1292,7 +1412,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S30",
-    "apparent_atomic_weight": 102.23,
+    "apparent_atomic_weight": 81.7,
     "actions_left": 45,
     "time_h": 291.9
    }
@@ -1310,19 +1430,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -1391,9 +1511,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S31",
-    "counts": 12753,
+    "counts": 10041,
     "minutes": 2.0,
-    "gross_cpm": 6376.5,
+    "gross_cpm": 5020.5,
     "actions_left": 43,
     "time_h": 296.03
    }
@@ -1408,9 +1528,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S32",
-    "counts": 3391,
+    "counts": 4348,
     "minutes": 2.0,
-    "gross_cpm": 1695.5,
+    "gross_cpm": 2174.0,
     "actions_left": 42,
     "time_h": 296.17
    }
@@ -1485,28 +1605,44 @@
     "sample_id": "S35",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0081
+      "nm": 422.3,
+      "intensity": 0.019
      },
      {
-      "nm": 426.2,
-      "intensity": 0.4834
+      "nm": 425.8,
+      "intensity": 0.0047
      },
      {
-      "nm": 440.8,
-      "intensity": 1.1214
+      "nm": 474.9,
+      "intensity": 0.6952
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0081
+      "nm": 521.8,
+      "intensity": 0.5978
      },
      {
-      "nm": 625.8,
-      "intensity": 1.1213
+      "nm": 574.8,
+      "intensity": 0.6258
      },
      {
-      "nm": 631.3,
-      "intensity": 0.4587
+      "nm": 606.8,
+      "intensity": 0.0049
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0049
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0184
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.6236
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0046
      }
     ],
     "actions_left": 37,
@@ -1522,7 +1658,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S35",
-    "apparent_atomic_weight": 117.19,
+    "apparent_atomic_weight": 102.29,
     "actions_left": 36,
     "time_h": 302.92
    }
@@ -1540,19 +1676,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -1626,9 +1762,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S36",
-    "counts": 12364,
+    "counts": 8552,
     "minutes": 2.0,
-    "gross_cpm": 6182.0,
+    "gross_cpm": 4276.0,
     "actions_left": 34,
     "time_h": 307.05
    }
@@ -1643,9 +1779,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S37",
-    "counts": 3692,
+    "counts": 4374,
     "minutes": 2.0,
-    "gross_cpm": 1846.0,
+    "gross_cpm": 2187.0,
     "actions_left": 33,
     "time_h": 307.18
    }
@@ -1720,28 +1856,44 @@
     "sample_id": "S40",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0055
+      "nm": 422.3,
+      "intensity": 0.0149
      },
      {
-      "nm": 426.2,
-      "intensity": 0.7652
+      "nm": 425.8,
+      "intensity": 0.0041
      },
      {
-      "nm": 440.8,
-      "intensity": 0.9254
+      "nm": 474.9,
+      "intensity": 0.974
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0063
+      "nm": 521.8,
+      "intensity": 0.4665
      },
      {
-      "nm": 625.8,
-      "intensity": 0.9173
+      "nm": 574.8,
+      "intensity": 0.984
      },
      {
-      "nm": 631.3,
-      "intensity": 0.6475
+      "nm": 606.8,
+      "intensity": 0.0032
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0036
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0145
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.469
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.0031
      }
     ],
     "actions_left": 28,
@@ -1757,7 +1909,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S40",
-    "apparent_atomic_weight": 137.83,
+    "apparent_atomic_weight": 130.42,
     "actions_left": 27,
     "time_h": 313.93
    }
@@ -1775,19 +1927,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -1866,9 +2018,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S41",
-    "counts": 9975,
+    "counts": 6529,
     "minutes": 2.0,
-    "gross_cpm": 4987.5,
+    "gross_cpm": 3264.5,
     "actions_left": 25,
     "time_h": 318.07
    }
@@ -1883,9 +2035,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S42",
-    "counts": 4126,
+    "counts": 4653,
     "minutes": 2.0,
-    "gross_cpm": 2063.0,
+    "gross_cpm": 2326.5,
     "actions_left": 24,
     "time_h": 318.2
    }
@@ -1960,28 +2112,44 @@
     "sample_id": "S45",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0039
+      "nm": 422.3,
+      "intensity": 0.01
      },
      {
-      "nm": 426.2,
-      "intensity": 1.0175
+      "nm": 425.8,
+      "intensity": 0.0031
      },
      {
-      "nm": 440.8,
-      "intensity": 0.7633
+      "nm": 474.9,
+      "intensity": 1.1985
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0038
+      "nm": 521.8,
+      "intensity": 0.3186
      },
      {
-      "nm": 625.8,
-      "intensity": 0.6715
+      "nm": 574.8,
+      "intensity": 1.1903
      },
      {
-      "nm": 631.3,
-      "intensity": 1.0327
+      "nm": 606.8,
+      "intensity": 0.0019
+     },
+     {
+      "nm": 612.5,
+      "intensity": 0.0031
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0105
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.3228
+     },
+     {
+      "nm": 682.5,
+      "intensity": 0.002
      }
     ],
     "actions_left": 19,
@@ -1997,7 +2165,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S45",
-    "apparent_atomic_weight": 168.3,
+    "apparent_atomic_weight": 163.83,
     "actions_left": 18,
     "time_h": 324.95
    }
@@ -2015,19 +2183,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -2111,9 +2279,9 @@
    "reason": "Count the crystals; activity per gram tells whether crystallisation enriched the target.",
    "result": {
     "sample_id": "S46",
-    "counts": 8296,
+    "counts": 4814,
     "minutes": 2.0,
-    "gross_cpm": 4148.0,
+    "gross_cpm": 2407.0,
     "actions_left": 16,
     "time_h": 329.08
    }
@@ -2128,9 +2296,9 @@
    "reason": "Count the mother liquor to compare specific activity with the crystals.",
    "result": {
     "sample_id": "S47",
-    "counts": 4898,
+    "counts": 4809,
     "minutes": 2.0,
-    "gross_cpm": 2449.0,
+    "gross_cpm": 2404.5,
     "actions_left": 15,
     "time_h": 329.22
    }
@@ -2205,28 +2373,36 @@
     "sample_id": "S50",
     "lines": [
      {
-      "nm": 381.0,
-      "intensity": 0.0018
+      "nm": 422.3,
+      "intensity": 0.0055
      },
      {
-      "nm": 426.2,
-      "intensity": 1.4249
+      "nm": 425.8,
+      "intensity": 0.002
      },
      {
-      "nm": 440.8,
-      "intensity": 0.4098
+      "nm": 474.9,
+      "intensity": 1.5655
      },
      {
-      "nm": 540.1,
-      "intensity": 0.0018
+      "nm": 521.8,
+      "intensity": 0.1658
      },
      {
-      "nm": 625.8,
-      "intensity": 0.3847
+      "nm": 574.8,
+      "intensity": 1.4998
      },
      {
-      "nm": 631.3,
-      "intensity": 1.495
+      "nm": 612.5,
+      "intensity": 0.0019
+     },
+     {
+      "nm": 660.3,
+      "intensity": 0.0053
+     },
+     {
+      "nm": 679.3,
+      "intensity": 0.176
      }
     ],
     "actions_left": 10,
@@ -2242,7 +2418,7 @@
    "reason": "The new element's lines are visible; measure the apparent atomic weight to correct for the remaining contaminants.",
    "result": {
     "sample_id": "S50",
-    "apparent_atomic_weight": 204.3,
+    "apparent_atomic_weight": 196.18,
     "actions_left": 9,
     "time_h": 335.97
    }
@@ -2260,19 +2436,19 @@
       "origin": "precipitate of ore with reagent_A"
      },
      {
-      "id": "S3",
-      "state": "solid",
-      "origin": "precipitate of S2 with reagent_B"
+      "id": "S4",
+      "state": "solution",
+      "origin": "filtrate of S2 with reagent_B"
      },
      {
-      "id": "S6",
-      "state": "solution",
-      "origin": "filtrate of S4 with reagent_C"
+      "id": "S5",
+      "state": "solid",
+      "origin": "precipitate of S3 with reagent_C"
      },
      {
       "id": "S7",
       "state": "solid",
-      "origin": "precipitate of S5 with reagent_D"
+      "origin": "precipitate of S6 with reagent_D"
      },
      {
       "id": "S9",
@@ -2341,8 +2517,8 @@
    "tool": "submit",
    "args": {
     "sample_id": "S50",
-    "atomic_weight": 253.26,
-    "carrier": "Qy"
+    "atomic_weight": 233.15,
+    "carrier": "Qe"
    },
    "reason": "Purity is near the goal with recovery kept high, so submit with the contaminant-corrected atomic weight.",
    "result": {
@@ -2356,26 +2532,26 @@
  "actions": 92,
  "time_h": 335.97,
  "result": {
-  "reward": 0.861914,
-  "purity": 0.722460396635973,
-  "recovery": 0.4783296694206048,
-  "purity_score": 0.8027337740399699,
+  "reward": 0.939451,
+  "purity": 0.8221517484792622,
+  "recovery": 0.3023800088888359,
+  "purity_score": 0.9135019427547357,
   "recovery_score": 1.0,
-  "separation": 0.8027337740399699,
+  "separation": 0.9135019427547357,
   "report_gated_in": true,
   "weight_credit": 1.0,
   "carrier_credit": 1.0,
   "report": 1.0,
   "submitted": {
    "sample_id": "S50",
-   "atomic_weight": 253.26,
-   "carrier": "Qy"
+   "atomic_weight": 233.15,
+   "carrier": "Qe"
   }
  },
  "truth": {
-  "carrier": "Qy",
-  "interferer_carrier": "Ja",
-  "target_atomic_weight": 254.71
+  "carrier": "Qe",
+  "interferer_carrier": "Jo",
+  "target_atomic_weight": 229.99
  },
  "status": "submitted",
  "missing_reasons": 0

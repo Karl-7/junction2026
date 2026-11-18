@@ -22,6 +22,10 @@ def _n(d=""):
     return {"type": "number", "description": d}
 
 
+def _e(values, d=""):
+    return {"type": "string", "enum": values, "description": d}
+
+
 def _tool(name: str, desc: str, props: dict | None = None, required: list | None = None) -> dict:
     props = props or {}
     return {
@@ -40,14 +44,22 @@ TOOLS = [
     _tool("list_samples", "Free. Current sample ids and states, reagent units left, actions left, clock."),
     _tool("dissolve", "Dissolve a solid sample (same id).", {"sample_id": _s()}),
     _tool("precipitate", "Add a reagent to a solution and filter into a solid precipitate and a filtrate solution.",
-          {"sample_id": _s(), "reagent": _s("e.g. reagent_A")}),
+          {"sample_id": _s(), "reagent": _s("e.g. reagent_A"),
+           "expect_target_in": _e(["precipitate", "filtrate", "unsure"],
+                                  "Optional: where you expect most of the target to end up.")},
+          ["sample_id", "reagent"]),
     _tool("crystallize", "Fractional crystallisation of a solution; crystals hold `fraction` (0.05-0.95) of the mass.",
-          {"sample_id": _s(), "fraction": _n()}),
+          {"sample_id": _s(), "fraction": _n(),
+           "expect_enriched_in": _e(["crystals", "mother_liquor", "unsure"],
+                                    "Optional: which product you expect to be richer in the target.")},
+          ["sample_id", "fraction"]),
     _tool("combine", "Merge two or more samples of the same state.",
           {"sample_ids": {"type": "array", "items": {"type": "string"}}}),
     _tool("wait", "Let simulated time pass (hours); radioactive elements decay.", {"hours": _n()}),
     _tool("measure_activity", "Count radioactivity for `minutes` (0.1-60). Subtract the background.",
-          {"sample_id": _s(), "minutes": _n()}),
+          {"sample_id": _s(), "minutes": _n(),
+           "expect_net_cpm": _n("Optional: the background-subtracted count rate you expect.")},
+          ["sample_id", "minutes"]),
     _tool("weigh", "Mass of a sample in grams (noisy).", {"sample_id": _s()}),
     _tool("spectrum", "Emission lines (nm, intensity) of elements above their detection limit.", {"sample_id": _s()}),
     _tool("atomic_weight", "Apparent (mass-fraction-weighted) atomic weight of the whole sample.", {"sample_id": _s()}),
@@ -55,6 +67,7 @@ TOOLS = [
           {"sample_id": _s(), "atomic_weight": _n(), "carrier": _s()}),
 ]
 TOOL_NAMES = {t["name"] for t in TOOLS}
+PREDICTION_FIELDS = {"expect_target_in", "expect_enriched_in", "expect_net_cpm"}
 
 SYSTEM_PROMPT = """\
 You are a scientist working in a simulated radiochemistry lab. You act only through the tools
@@ -62,6 +75,8 @@ provided; there is nothing else to inspect.
 
 Every tool call MUST include the argument `reason`: ONE sentence stating the key reason for this
 decision (what you expect to learn or achieve, and why now). Be concrete; do not restate the tool name.
+You may make several independent tool calls in one turn. Some tools also have optional `expect_*` fields where you can record what you expect to happen
+before seeing the result.
 """
 
 TASK_PROMPT = """\

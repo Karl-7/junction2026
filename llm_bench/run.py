@@ -1,6 +1,6 @@
 """Run models on seeds, then rebuild the comparison site.
 
-    python -m llm_bench.run --seeds 101 102 103                     # every model in models.json
+    python -m llm_bench.run --seeds 101 102 103                     # every enabled model in models.json
     python -m llm_bench.run --models claude-opus-5-5 gpt-5 --seeds 101
     python -m llm_bench.run --families Claude Gemini --seeds 101 102 --skip-existing
 """
@@ -11,6 +11,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from .agent import run_episode
 from .config import RUNS_DIR, find_model, load_env, load_models
+
+EST_REQUESTS = 60     # typical model requests per episode (one request can carry several tool calls)
 
 
 def main():
@@ -26,7 +28,7 @@ def main():
 
     load_env()
     models = load_models()
-    specs = [find_model(m, models) for m in a.models] if a.models else models
+    specs = [find_model(m, models) for m in a.models] if a.models else [m for m in models if m.enabled]
     if a.families:
         specs = [s for s in specs if s.family in a.families]
     jobs = []
@@ -37,11 +39,26 @@ def main():
                 continue
             jobs.append((s, seed))
 
+    per_model = {}
+    for s, _ in jobs:
+        per_model[s.id] = per_model.get(s.id, 0) + 1
+    for s in specs:
+        n = per_model.get(s.id, 0)
+        if n and s.rpd and s.rpd < n * EST_REQUESTS:
+            print(f"WARNING {s.label}: ~{n * EST_REQUESTS} requests needed for {n} episode(s) "
+                  f"(~{EST_REQUESTS} each) but its daily limit is {s.rpd}. It will stop with a quota error "
+                  f"part-way; use a paid tier or fewer seeds.", flush=True)
+        if n and s.rpm:
+            print(f"{s.label}: limited to {s.rpm:g} requests/min, so one episode takes about "
+                  f"{EST_REQUESTS / s.rpm:.0f} min.", flush=True)
+
     def one(job):
         s, seed = job
         print(f"== {s.label} seed {seed}", flush=True)
         rec = run_episode(s, seed, max_requests=a.max_requests, verbose=a.parallel == 1)
         r = rec["result"] or {}
+        if rec["status"].startswith("error"):
+            print(f"!! {s.label} seed {seed} FAILED: {rec['status']}", flush=True)
         print(f"== {s.label} seed {seed}: {rec['status']} reward={r.get('reward', 0):.3f} "
               f"actions={rec['actions']} tokens={rec['usage']}", flush=True)
         return rec
